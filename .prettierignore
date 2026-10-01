@@ -1,0 +1,32 @@
+# Build output
+.next/
+out/
+build/
+dist/
+coverage/
+
+# Dependencies
+node_modules/
+package-lock.json
+
+# Generated files
+next-env.d.ts
+public/sitemap*.xml
+public/robots.txt
+
+# Binary and media assets
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.webp
+*.avif
+*.pdf
+*.woff
+*.woff2
+
+# Environment files
+.env
+.env.*
+!.env.example
