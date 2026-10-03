@@ -1,0 +1,7 @@
+-- supabase/seed.sql
+-- Local development seed data for KD SOLUTION IT.
+-- Runs automatically after `supabase db reset`. Real seed data (subscription
+-- plans, the first super_admin account, English CMS content, transactional
+-- email templates, default tax rates, expense categories, and the demo
+-- tenant) is added in Phase 19 once the matching tables exist. This file
+-- intentionally has no statements yet because no tables have been created.
