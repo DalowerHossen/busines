@@ -1,0 +1,23 @@
+# docker/.dockerignore
+# Keeps the Docker build context small and avoids leaking local secrets or
+# build artifacts into the image.
+
+node_modules
+.next
+out
+build
+dist
+coverage
+.git
+.github
+.husky
+.vscode
+.idea
+*.log
+npm-debug.log*
+.env
+.env.*
+!.env.example
+.DS_Store
+docker/nginx/ssl/*.pem
+docker/nginx/ssl/*.key
