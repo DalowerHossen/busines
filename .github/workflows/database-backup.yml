@@ -1,0 +1,43 @@
+# .github/workflows/database-backup.yml
+# Scheduled off-site backup verification job. The primary automated backups
+# run as a Supabase scheduled job / cron edge function (see
+# docs/planning/FEATURE-REGISTRY.md group R - backups and disaster recovery);
+# this workflow performs an independent daily logical dump and uploads it as
+# a short-lived artifact so restore drills can be exercised from CI.
+
+name: Database Backup Verification
+
+on:
+  schedule:
+    # Every day at 02:00 UTC.
+    - cron: '0 2 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  backup-dump:
+    name: Dump and verify backup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Dump database schema and data
+        run: |
+          pg_dump "$SUPABASE_DB_URL" \
+            --no-owner --no-privileges --format=custom \
+            --file=backup-$(date +%Y%m%d-%H%M%S).dump
+        env:
+          SUPABASE_DB_URL: ${{ secrets.DATABASE_BACKUP_URL }}
+
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: database-backup-${{ github.run_id }}
+          path: backup-*.dump
+          retention-days: 7
