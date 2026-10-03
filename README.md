@@ -10,16 +10,16 @@ customers receive secure document links by email and pay online without creating
 
 ## Platform overview
 
-| Area           | Summary                                                                     |
-| -------------- | --------------------------------------------------------------------------- |
-| Framework      | Next.js 14 App Router, TypeScript in strict mode                            |
-| Styling        | Tailwind CSS with a custom KD SOLUTION IT design system                     |
-| Database       | Supabase PostgreSQL with Row Level Security on every table                  |
-| Authentication | Supabase Auth, email and password, Google and GitHub, two factor            |
-| Email          | Resend, every message sent from support@kdsolutionit.com                    |
-| Payments       | Stripe, PayPal, Paddle, NMI, 2Checkout, bKash, Nagad, manual, custom        |
-| Storage        | Pluggable adapter: Supabase Storage, Cloudflare R2, S3, Backblaze B2, local |
-| Hosting        | Netlify, Vercel, Docker or any Node host from the same codebase             |
+| Area           | Summary                                                                                        |
+| -------------- | ---------------------------------------------------------------------------------------------- |
+| Framework      | Next.js 14 App Router, TypeScript in strict mode                                               |
+| Styling        | Tailwind CSS with a custom KD SOLUTION IT design system                                        |
+| Database       | Supabase PostgreSQL with Row Level Security on every table                                     |
+| Authentication | Supabase Auth, email and password, Google and GitHub, two factor                               |
+| Email          | Resend, every message sent from support@kdsolutionit.com                                       |
+| Payments       | Stripe, PayPal, Paddle, NMI, 2Checkout, Adyen for Platforms, Nium, local rails, manual, custom |
+| Storage        | Pluggable adapter: Google Drive (default), Supabase Storage, R2, S3, B2, local                 |
+| Hosting        | Netlify, Vercel, Docker or any Node host from the same codebase                                |
 
 ### Account roles
 
@@ -128,6 +128,12 @@ Resolution order: **database value, then environment variable, then built in def
 12. All code, comments, labels and messages are written in English.
 
 ---
+
+## Project planning and continuity
+
+Full scope, locked architecture decisions and the phase-by-phase delivery
+plan live in `docs/planning/`. Read `docs/planning/README.md` first in any
+new working session before changing code.
 
 ## Deployment
 
