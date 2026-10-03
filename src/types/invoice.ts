@@ -103,6 +103,31 @@ export interface InvoiceComment {
 }
 
 /**
+ * A reusable visual layout for rendering an invoice or estimate as a PDF
+ * (for example "Classic" or "Modern Blue"). `companyId` is `null` for a
+ * platform-provided built-in template available to every company, and set
+ * for a company's own custom template. This is deliberately the simple
+ * per-document layout selector only -- a much larger buy/sell Template
+ * Marketplace (author profiles, ratings, revenue share, moderation) is a
+ * separate system added much later (see docs/planning/PHASE-PLAN.md Phase
+ * 61, FEATURE-REGISTRY.md group EE3) and extends this same table rather
+ * than replacing it.
+ */
+export interface InvoiceTemplate {
+  readonly id: UUID;
+  readonly companyId: UUID | null;
+  readonly name: string;
+  readonly slug: string;
+  readonly isBuiltIn: boolean;
+  readonly layoutConfig: Record<string, unknown>;
+  readonly thumbnailProviderFileId: string | null;
+  readonly isActive: boolean;
+  readonly createdAt: ISODateString;
+  readonly updatedAt: ISODateString;
+  readonly deletedAt: ISODateString | null;
+}
+
+/**
  * The core invoice record.
  */
 export interface Invoice extends TenantScopedEntity {
