@@ -1,0 +1,98 @@
+# .github/workflows/ci.yml
+# Continuous integration pipeline for KD SOLUTION IT. Runs on every push and
+# pull request and must stay green before any branch can be merged or
+# deployed. Mirrors the local `npm run verify` gate plus the build step.
+
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: ['**']
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify (language, placeholders, types, lint, format)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: English-only language check
+        run: npm run check:language
+
+      - name: No placeholder content check
+        run: npm run check:placeholders
+
+      - name: TypeScript type check
+        run: npm run typecheck
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: Prettier format check
+        run: npm run format:check
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: verify
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build production bundle
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'
+          # Build-time placeholder values only. Real secrets are injected by
+          # the hosting provider (Netlify, Vercel, Docker) at deploy time.
+          NEXT_PUBLIC_APP_URL: https://kdsolutionit.netlify.app
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+
+  test:
+    name: Unit and integration tests
+    runs-on: ubuntu-latest
+    needs: verify
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Run test suite
+        run: npm run test --if-present

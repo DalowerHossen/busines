@@ -71,6 +71,12 @@ const nextConfig = {
   compress: true,
   productionBrowserSourceMaps: false,
 
+  // Docker and bare VPS deployments build a self-contained server bundle so
+  // the final image only needs `node server.js`, no `node_modules` copy.
+  // Netlify and Vercel manage their own build output, so this only applies
+  // when DOCKER_BUILD=true is set (see docker/Dockerfile).
+  output: process.env.DOCKER_BUILD === 'true' ? 'standalone' : undefined,
+
   eslint: {
     // Linting runs as a dedicated quality gate, so builds are not blocked twice.
     ignoreDuringBuilds: true,
@@ -96,6 +102,10 @@ const nextConfig = {
       bodySizeLimit: '2mb',
     },
     optimizePackageImports: ['lucide-react', 'date-fns'],
+    // Enables src/instrumentation.ts so required environment variables are
+    // validated once at server startup instead of failing deep inside a
+    // request handler. Stable without this flag starting in Next.js 15.
+    instrumentationHook: true,
   },
 
   async headers() {

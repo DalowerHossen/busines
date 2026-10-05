@@ -1,0 +1,104 @@
+// src/config/permissions.ts
+// Central role capability matrix. This is the single source of truth both
+// UI gating and the server-side authorization layer (added in Phase 20)
+// read from, so a permission rule is defined in exactly one place. See
+// docs/planning/ARCHITECTURE-DECISIONS.md section 2 for the locked role
+// model this matrix encodes.
+import type { AccountRole } from '@/types/auth';
+
+/**
+ * Every capability the platform checks access for. Grouped by domain with
+ * a `resource.action` naming convention for readability.
+ */
+export type Capability =
+  | 'clients.manage'
+  | 'invoices.manage_drafts'
+  | 'invoices.send'
+  | 'invoices.request_send'
+  | 'estimates.manage'
+  | 'payments.view'
+  | 'payments.refund'
+  | 'expenses.manage'
+  | 'reports.view'
+  | 'reports.export'
+  | 'journal.manage'
+  | 'wallet.manage'
+  | 'payouts.request'
+  | 'team.manage'
+  | 'settings.manage'
+  | 'kyc.submit'
+  | 'kyc.review'
+  | 'gateways.configure'
+  | 'reseller.manage_sub_tenants'
+  | 'affiliate.view_own_stats'
+  | 'platform.manage_tenants'
+  | 'platform.manage_cms';
+
+/**
+ * The complete, explicit capability grant for every account role. A role
+ * not listed for a capability is denied by default (deny-by-default,
+ * matching the project's RLS posture).
+ */
+export const ROLE_CAPABILITIES: Readonly<Record<AccountRole, readonly Capability[]>> = {
+  super_admin: [
+    'clients.manage',
+    'invoices.manage_drafts',
+    'invoices.send',
+    'estimates.manage',
+    'payments.view',
+    'payments.refund',
+    'expenses.manage',
+    'reports.view',
+    'reports.export',
+    'journal.manage',
+    'wallet.manage',
+    'payouts.request',
+    'team.manage',
+    'settings.manage',
+    'kyc.review',
+    'gateways.configure',
+    'reseller.manage_sub_tenants',
+    'platform.manage_tenants',
+    'platform.manage_cms',
+  ],
+  reseller: ['reseller.manage_sub_tenants'],
+  owner: [
+    'clients.manage',
+    'invoices.manage_drafts',
+    'invoices.send',
+    'estimates.manage',
+    'payments.view',
+    'payments.refund',
+    'expenses.manage',
+    'reports.view',
+    'reports.export',
+    'wallet.manage',
+    'payouts.request',
+    'team.manage',
+    'settings.manage',
+    'kyc.submit',
+    'gateways.configure',
+  ],
+  staff: [
+    'clients.manage',
+    'invoices.manage_drafts',
+    'invoices.request_send',
+    'estimates.manage',
+    'payments.view',
+    'expenses.manage',
+    'reports.view',
+  ],
+  accountant: ['payments.view', 'reports.view', 'reports.export', 'journal.manage'],
+  affiliate: ['affiliate.view_own_stats'],
+};
+
+/**
+ * Checks whether a role has been granted a given capability.
+ *
+ * @param role The account role to check.
+ * @param capability The capability being requested.
+ * @returns `true` if the role is explicitly granted the capability.
+ */
+export function roleHasCapability(role: AccountRole, capability: Capability): boolean {
+  return ROLE_CAPABILITIES[role].includes(capability);
+}

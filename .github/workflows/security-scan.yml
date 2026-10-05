@@ -1,0 +1,56 @@
+# .github/workflows/security-scan.yml
+# Scheduled and on-push security scanning: npm audit for known vulnerable
+# dependencies and a secret-leak scan. Supports the Y1-Y12 / Z1-Z12 security
+# hardening requirements tracked in docs/planning/FEATURE-REGISTRY.md.
+
+name: Security Scan
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: ['**']
+  schedule:
+    # Every Monday at 03:00 UTC.
+    - cron: '0 3 * * 1'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-audit:
+    name: Dependency vulnerability audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: npm audit (fail on high or critical)
+        run: npm audit --audit-level=high
+
+  secret-scan:
+    name: Secret leak scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan for committed secrets
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ''
+          head: HEAD
+          extra_args: --only-verified
