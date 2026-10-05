@@ -12,7 +12,7 @@
 # ---------------------------------------------------------------------------
 # Stage 1: install dependencies
 # ---------------------------------------------------------------------------
-FROM node:20.18.0-alpine AS deps
+FROM node:26.10.0-alpine AS deps
 WORKDIR /app
 RUN apk add --no-cache libc6-compat
 COPY package.json package-lock.json ./
@@ -21,7 +21,7 @@ RUN npm ci --no-audit --no-fund
 # ---------------------------------------------------------------------------
 # Stage 2: build the application
 # ---------------------------------------------------------------------------
-FROM node:20.18.0-alpine AS builder
+FROM node:26.10.0-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -43,7 +43,7 @@ RUN npm run build
 # ---------------------------------------------------------------------------
 # Stage 3: minimal runtime image
 # ---------------------------------------------------------------------------
-FROM node:20.18.0-alpine AS runner
+FROM node:26.10.0-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production

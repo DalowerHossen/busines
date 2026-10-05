@@ -2,7 +2,7 @@
 # Development image with hot reload. Mounts the repository as a volume via
 # docker-compose.yml so source edits on the host are picked up immediately.
 
-FROM node:20.18.0-alpine
+FROM node:26.10.0-alpine
 WORKDIR /app
 RUN apk add --no-cache libc6-compat
 
