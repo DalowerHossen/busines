@@ -1,0 +1,4 @@
+# .husky/commit-msg
+# Enforces Conventional Commits so the changelog and release notes stay
+# machine readable. See docs/CONTRIBUTING.md for the full commit convention.
+npx --no-install commitlint --edit "$1"

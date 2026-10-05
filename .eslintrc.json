@@ -1,0 +1,76 @@
+{
+  "root": true,
+  "extends": ["next/core-web-vitals", "plugin:@typescript-eslint/recommended", "prettier"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module"
+  },
+  "plugins": ["@typescript-eslint"],
+  "ignorePatterns": [
+    "node_modules/",
+    ".next/",
+    "out/",
+    "build/",
+    "dist/",
+    "coverage/",
+    "next-env.d.ts"
+  ],
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
+      }
+    ],
+    "@typescript-eslint/consistent-type-imports": [
+      "error",
+      { "prefer": "type-imports", "fixStyle": "inline-type-imports" }
+    ],
+    "@typescript-eslint/no-non-null-assertion": "error",
+    "@typescript-eslint/ban-ts-comment": ["error", { "ts-expect-error": "allow-with-description" }],
+    "no-console": ["error", { "allow": ["warn", "error"] }],
+    "no-debugger": "error",
+    "no-alert": "error",
+    "no-var": "error",
+    "prefer-const": "error",
+    "eqeqeq": ["error", "always", { "null": "ignore" }],
+    "object-shorthand": "error",
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": ["../../*"],
+            "message": "Use the '@/' path alias instead of deep relative imports."
+          }
+        ]
+      }
+    ],
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "TSAsExpression > TSAnyKeyword",
+        "message": "Casting to 'any' is not allowed. Use 'unknown' and narrow the type."
+      }
+    ],
+    "react/jsx-no-target-blank": [
+      "error",
+      { "allowReferrer": false, "enforceDynamicLinks": "always" }
+    ],
+    "react/self-closing-comp": "error",
+    "jsx-a11y/alt-text": "error"
+  },
+  "overrides": [
+    {
+      "files": ["scripts/**/*.mjs"],
+      "env": { "node": true },
+      "rules": {
+        "no-console": "off"
+      }
+    }
+  ]
+}

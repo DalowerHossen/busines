@@ -1,0 +1,4 @@
+# .husky/pre-push
+# Runs the full verification suite before code leaves the local machine:
+# language check (English only), placeholder check, typecheck, lint, format.
+npm run verify
