@@ -71,7 +71,7 @@ jobs:
         run: npm run build
         env:
           NEXT_TELEMETRY_DISABLED: '1'
-          NODE_OPTIONS: '--max-old-space-size=4096'
+          NODE_OPTIONS: '--max-old-space-size=6144'
           # Build-time placeholder values only. Real secrets are injected by
           # the hosting provider (Netlify, Vercel, Docker) at deploy time.
           NEXT_PUBLIC_APP_URL: https://kdsolutionit.netlify.app
