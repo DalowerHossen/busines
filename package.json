@@ -20,7 +20,7 @@
     "format:check": "prettier --check .",
     "check:language": "node scripts/check-language.mjs",
     "check:placeholders": "node scripts/check-placeholders.mjs",
-    "verify": "npm run check:language && npm run check:placeholders && npm run typecheck && npm run verify:phase47 && npm run lint && npm run format:check",
+    "verify": "npm run check:language && npm run check:placeholders && npm run typecheck && npm run verify:phase47 && npm run verify:phase48 && npm run lint && npm run format:check",
     "verify:ecommerce": "tsx scripts/verify-ecommerce-signatures.ts && tsx scripts/verify-ecommerce-normalization.ts",
     "verify:security": "tsx scripts/verify-security.ts",
     "verify:mor": "tsx scripts/verify-mor.ts",
@@ -47,7 +47,8 @@
     "verify:phase24": "tsx scripts/verify-phase24.ts",
     "verify:phase46": "tsx scripts/verify-phase46.ts",
     "verify:phase47": "tsx scripts/verify-phase47.ts",
-    "prepare": "husky"
+    "prepare": "husky",
+    "verify:phase48": "tsx scripts/verify-phase48.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "3.9.1",

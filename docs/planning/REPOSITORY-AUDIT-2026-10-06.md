@@ -12,12 +12,12 @@ The following checks pass with dependencies installed:
 
 - `npm run verify`: language scan, unfinished-marker scan, TypeScript, ESLint, and Prettier.
 - `npm run verify:ecommerce`, `npm run verify:security`, `npm run verify:mor`, `npm run verify:accounting`, and `npm run verify:core`.
-- `npm run verify:phase17` through `npm run verify:phase24` and `npm run verify:phase46`, plus `npm run verify:phase35` through `npm run verify:phase45`.
+- `npm run verify:phase17` through `npm run verify:phase24` and `npm run verify:phase46` through `npm run verify:phase48`, plus `npm run verify:phase35` through `npm run verify:phase45`.
 - `npm run build` with a complete local preview environment.
 
 These checks prove that the current contracts, components, smoke scripts, migration compatibility checks, and static build are internally consistent. They do not prove live Supabase integration, production credentials, browser flows, or real payment/email/storage execution.
 
-The current dependency audit reports 23 vulnerabilities in the full tree (12 in production dependencies, including high and critical findings). The security workflow's high-severity audit gate therefore needs remediation before release.
+The current dependency audit reports zero vulnerabilities in the full tree after the Vitest and PostCSS dependency repairs. The security workflow remains the release gate.
 
 ## Current implementation inventory
 
@@ -55,18 +55,19 @@ The requirements call for Recharts, which remains absent; Phase 46 uses an acces
 
 ## Phase reconciliation
 
-The tracker labels 46 of 75 phase rows `Done` and 29 `Not Started`:
+The tracker labels 47 of 75 phase rows `Done`, Phase 48 `In Progress`, and 27 `Not Started`:
 
-- Done rows: 1–46 (46 rows). These include the migration/schema batches, Phase 17 and Phase 18 RLS hardening, provider-neutral contract batches, decimal-safe currency/FX services, dashboard/search/notification contracts, UI foundation, auth shell, onboarding shell, and public marketing batches.
-- Not started rows: 47–75 (29 rows).
-- The tracker header now records 29 remaining; Phases 18, 19, 20, 21, 22, 23, 24, and 46 are complete.
+- Done rows: 1–47 (47 rows). These include the migration/schema batches, Phase 17 and Phase 18 RLS hardening, provider-neutral contract batches, decimal-safe currency/FX services, dashboard/search/notification contracts, UI foundation, auth shell, onboarding shell, public marketing batches, and the tenant-safe clients module.
+- Phase 48 is `In Progress`: catalogue, inventory, supplier and purchasing verification boundaries are present; product and inventory domain hardening remains the active implementation batch.
+- Not started rows: 49–75 (27 rows).
+- The tracker header now records 28 not-started rows plus the active Phase 48 row; Phases 18, 19, 20, 21, 22, 23, 24, 46, and 47 are complete.
 - P3 has seven historical QR-business-card requirements and is superseded, not pending delivery. Invoice QR codes remain a later invoicing requirement.
 
 The completed rows are not equivalent to full product completion: many are intentionally contract, schema, adapter, or UI-foundation batches whose production wiring is scheduled later. Full acceptance therefore still requires all 29 not-started rows plus integration and hardening work that the completed foundation rows explicitly deferred.
 
 ## Remaining delivery order
 
-1. **Phases 47–65:** authenticated product modules, client access, invoicing, payments, accounting, time tracking, team/KYC, wallet/MoR, ecommerce settings, reports, settings, reseller/affiliate, and super-admin UI. Phase 46 supplies the dashboard/search/notification shell; Phase 24 supplies the decimal-safe currency/FX boundary used by these modules; Phase 23 supplies bounded CSV/XLSX parsing, formula and macro defenses, magic-byte validation, HTML/SVG sanitization, image/PDF optimization, and secure CSV serialization; Phase 22 supplies server-side React-PDF rendering, embedded fonts, exact-byte hashes, snapshot preparation, and print CSS; Phase 21 supplies the Google Drive adapter and private-link boundary; Phases 17–20 supply forced RLS/isolation coverage, database hardening, seed/cron work, Supabase clients, encryption/key-vault wiring, tenant boundary, and database-backed security integration.
+1. **Phases 48–65:** authenticated product modules, client access, invoicing, payments, accounting, time tracking, team/KYC, wallet/MoR, ecommerce settings, reports, settings, reseller/affiliate, and super-admin UI. Phase 46 supplies the dashboard/search/notification shell; Phase 24 supplies the decimal-safe currency/FX boundary used by these modules; Phase 23 supplies bounded CSV/XLSX parsing, formula and macro defenses, magic-byte validation, HTML/SVG sanitization, image/PDF optimization, and secure CSV serialization; Phase 22 supplies server-side React-PDF rendering, embedded fonts, exact-byte hashes, snapshot preparation, and print CSS; Phase 21 supplies the Google Drive adapter and private-link boundary; Phases 17–20 supply forced RLS/isolation coverage, database hardening, seed/cron work, Supabase clients, encryption/key-vault wiring, tenant boundary, and database-backed security integration.
 2. **Phases 66–70:** authenticated API routes, provider webhooks, public API/direct checkout, tenant server actions, admin server actions, and complete middleware/security wiring.
 3. **Phases 71–75:** unit/integration/E2E tests, asset/mobile/accessibility QA, documentation refresh, clean production build/deployment verification, dead-link audit, and final release gate.
 
