@@ -19,6 +19,7 @@ function main(): void {
   const requiredFiles = [
     'src/features/products/types.ts',
     'src/features/products/validation/product.ts',
+    'src/features/products/validation/catalogue.ts',
     'src/features/products/queries/list-products.ts',
     'src/features/products/queries/get-product.ts',
     'src/features/products/queries/list-categories.ts',
@@ -41,6 +42,11 @@ function main(): void {
   ];
 
   for (const relativePath of requiredFiles) read(relativePath);
+
+  const catalogueValidation = read('src/features/products/validation/catalogue.ts');
+  assert.match(catalogueValidation, /bundleSchema/u);
+  assert.match(catalogueValidation, /priceListSchema/u);
+  assert.match(catalogueValidation, /minimumQuantity/u);
 
   const productValidation = read('src/features/products/validation/product.ts');
   assert.match(productValidation, /productBaseSchema/u);
