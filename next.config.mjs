@@ -90,6 +90,15 @@ const nextConfig = {
     ignoreBuildErrors: process.env.CI === 'true',
   },
 
+  serverExternalPackages: [
+    '@react-pdf/renderer',
+    '@supabase/supabase-js',
+    'exceljs',
+    'googleapis',
+    'pdf-lib',
+    'sharp',
+  ],
+
   images: {
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [320, 420, 640, 768, 1024, 1280, 1536, 1920],
