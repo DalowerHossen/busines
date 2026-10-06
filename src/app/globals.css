@@ -1,0 +1,242 @@
+/* src/app/globals.css
+ * Design tokens and base styles for KD SOLUTION IT.
+ * Every colour is a CSS custom property, so platform branding and per tenant
+ * branding can change at runtime without a rebuild.
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Brand scale, anchored on the primary blue #1d4ed8. */
+    --brand-50: 214 100% 97%;
+    --brand-100: 214 95% 93%;
+    --brand-200: 213 97% 87%;
+    --brand-300: 212 96% 78%;
+    --brand-400: 213 94% 68%;
+    --brand-500: 217 91% 60%;
+    --brand-600: 221 83% 53%;
+    --brand-700: 224 76% 48%;
+    --brand-800: 226 71% 40%;
+    --brand-900: 224 64% 33%;
+    --brand-950: 226 57% 21%;
+
+    /* Surfaces and text. */
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+    --surface: 0 0% 100%;
+    --surface-muted: 210 40% 98%;
+    --surface-raised: 0 0% 100%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    /* Interactive colours. */
+    --primary: var(--brand-700);
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: var(--brand-800);
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 42%;
+
+    /* Status colours. */
+    --success: 142 72% 29%;
+    --success-foreground: 0 0% 100%;
+    --success-subtle: 141 79% 95%;
+    --warning: 32 95% 35%;
+    --warning-foreground: 0 0% 100%;
+    --warning-subtle: 48 96% 93%;
+    --destructive: 0 72% 42%;
+    --destructive-foreground: 0 0% 100%;
+    --destructive-subtle: 0 86% 97%;
+    --info: 217 91% 45%;
+    --info-foreground: 0 0% 100%;
+    --info-subtle: 214 95% 95%;
+
+    /* Lines and focus. */
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: var(--brand-600);
+
+    /* Application frame. */
+    --sidebar: 222 47% 11%;
+    --sidebar-foreground: 210 40% 96%;
+    --sidebar-muted: 215 20% 65%;
+    --sidebar-active: 224 76% 48%;
+    --sidebar-border: 217 33% 20%;
+    --sidebar-width: 16rem;
+    --sidebar-width-collapsed: 4.5rem;
+    --topbar-height: 4rem;
+    --content-max-width: 84rem;
+    --form-max-width: 44rem;
+
+    /* Shape. */
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+
+    /* Elevation. */
+    --shadow-xs: 0 1px 2px 0 rgb(15 23 42 / 0.05);
+    --shadow-sm: 0 1px 3px 0 rgb(15 23 42 / 0.1), 0 1px 2px -1px rgb(15 23 42 / 0.1);
+    --shadow-md: 0 4px 6px -1px rgb(15 23 42 / 0.1), 0 2px 4px -2px rgb(15 23 42 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(15 23 42 / 0.1), 0 4px 6px -4px rgb(15 23 42 / 0.1);
+    --shadow-brand: 0 10px 30px -10px hsl(var(--brand-700) / 0.45);
+
+    /* Motion. */
+    --motion-fast: 120ms;
+    --motion-base: 200ms;
+    --motion-slow: 320ms;
+    --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+    --motion-ease-emphasized: cubic-bezier(0.2, 0, 0, 1.2);
+
+    /* Typography. */
+    /* The fonts already on the reader's device. Nothing is fetched from a
+       third party, which is one less request, one less thing to block the
+       first paint, and one less party watching who read the page. */
+    --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-heading: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+      sans-serif;
+    --font-mono: ui-monospace, 'SFMono-Regular', monospace;
+  }
+
+  .dark {
+    --background: 222 47% 7%;
+    --foreground: 210 40% 96%;
+    --surface: 222 47% 9%;
+    --surface-muted: 217 33% 12%;
+    --surface-raised: 217 33% 14%;
+    --card: 222 47% 9%;
+    --card-foreground: 210 40% 96%;
+    --popover: 222 47% 9%;
+    --popover-foreground: 210 40% 96%;
+
+    --primary: var(--brand-500);
+    --primary-foreground: 222 47% 7%;
+    --primary-hover: var(--brand-400);
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 96%;
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 40% 96%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+
+    --success: 142 69% 45%;
+    --success-subtle: 143 64% 12%;
+    --warning: 38 92% 50%;
+    --warning-subtle: 32 81% 13%;
+    --destructive: 0 84% 60%;
+    --destructive-subtle: 0 63% 15%;
+    --info: 213 94% 68%;
+    --info-subtle: 221 60% 16%;
+
+    --border: 217 33% 20%;
+    --input: 217 33% 20%;
+    --ring: var(--brand-400);
+
+    --sidebar: 222 47% 5%;
+    --sidebar-foreground: 210 40% 96%;
+    --sidebar-muted: 215 20% 60%;
+    --sidebar-active: 217 91% 60%;
+    --sidebar-border: 217 33% 16%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading font-semibold tracking-tight text-foreground;
+  }
+
+  /* A visible focus ring on every interactive element, for keyboard users. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* Numbers in tables line up column by column. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Content that is read by a screen reader but not shown on screen. */
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* The skip link that appears when a keyboard user presses tab first. */
+  .skip-link {
+    @apply visually-hidden;
+  }
+
+  .skip-link:focus {
+    @apply fixed left-4 top-4 z-toast h-auto w-auto overflow-auto rounded-md bg-primary px-4 py-2 text-primary-foreground;
+    clip: auto;
+    margin: 0;
+  }
+
+  /* The shimmer used while content is loading. */
+  .shimmer {
+    @apply relative overflow-hidden bg-muted;
+  }
+
+  .shimmer::after {
+    @apply absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/40 to-transparent;
+    content: '';
+  }
+}
+
+@layer utilities {
+  /* Print rules used by invoices and statements. */
+  @media print {
+    .no-print {
+      display: none !important;
+    }
+
+    body {
+      background: #ffffff;
+    }
+  }
+}
