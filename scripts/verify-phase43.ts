@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
-import { AuthShell } from '@/features/auth';
-import { OnboardingWizard, DEFAULT_ONBOARDING_PLANS } from '@/features/onboarding';
+import { existsSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { onboardingSchema } from '@/lib/validators';
 import { CompanyProvider, useCompany } from '@/providers';
 
@@ -22,9 +22,14 @@ assert.equal(
   }).success,
   false
 );
-assert.equal(DEFAULT_ONBOARDING_PLANS[0]?.tierId, 'free');
-assert.equal(typeof OnboardingWizard, 'function');
-assert.equal(typeof AuthShell, 'function');
+assert.equal(
+  existsSync(resolve(process.cwd(), 'src/components/onboarding/setup-checklist.tsx')),
+  true
+);
+assert.match(
+  readFileSync(resolve(process.cwd(), 'src/app/(app)/dashboard/setup/page.tsx'), 'utf8'),
+  /loadOnboardingState/u
+);
 assert.equal(typeof CompanyProvider, 'function');
 assert.equal(typeof useCompany, 'function');
 

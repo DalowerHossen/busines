@@ -11,9 +11,9 @@ import {
 import type { ReactNode } from 'react';
 import { Badge, Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { buttonVariants } from '@/components/ui';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils';
 import { MARKETING_FEATURES } from './marketing-data';
-import { SectionHeading } from './section-heading';
+import { SectionHeading } from '@/components/marketing/section-heading';
 
 export function HomePageContent(): ReactNode {
   return (
@@ -116,7 +116,7 @@ export function HomePageContent(): ReactNode {
           eyebrow="One connected workspace"
           title="The details stay close to the decision."
           description="From the first client conversation to the final payout, each part of the workflow supports the next."
-          align="center"
+          isCentred
         />
         <div className="mt-12 grid gap-5 md:grid-cols-3">
           {MARKETING_FEATURES.slice(0, 3).map((feature) => {

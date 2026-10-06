@@ -3,9 +3,9 @@ import { ArrowRight, Check } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Badge, Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { buttonVariants } from '@/components/ui';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils';
 import { MARKETING_FEATURES } from './marketing-data';
-import { SectionHeading } from './section-heading';
+import { SectionHeading } from '@/components/marketing/section-heading';
 
 export function FeaturesPageContent(): ReactNode {
   return (
@@ -70,7 +70,7 @@ export function FeaturesPageContent(): ReactNode {
           eyebrow="Ready for your workflow"
           title="Start with the part that is slowing you down."
           description="A focused first step is still a connected first step."
-          align="center"
+          isCentred
         />
         <Link href="/signup" className={cn(buttonVariants({ size: 'lg' }), 'mt-8')}>
           Start your workspace <ArrowRight className="h-4 w-4" aria-hidden="true" />

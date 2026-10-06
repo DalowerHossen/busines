@@ -201,6 +201,99 @@ README-তে নতুন স্ক্রিপ্ট, বিল্ড-সি�
 
 ---
 
+## ২খ. দ্বিতীয় পূর্ণ স্ক্যানে পাওয়া ত্রুটি (লাইন-বাই-লাইন)
+
+প্রথম রাউন্ডের পর পুরো `src/` গাছে reachability বিশ্লেষণ, ডুপ্লিকেট এক্সপোর্ট
+স্ক্যান এবং রাউট-ম্যাচিং চালানো হয়। তাতে ডাটাবেস-স্তরের মতোই
+অ্যাপ্লিকেশন-স্তরেও একই দুই-জেনারেশনের সমস্যা ধরা পড়ে।
+
+### ২খ.১ 🔴 সাইন-ইন সম্পূর্ণ অকেজো ছিল — **সমাধান হয়েছে**
+
+- `/login` পেজ `features/auth/LoginForm` রেন্ডার করত, যা একটি **ঐচ্ছিক
+  `onSubmit` prop** আশা করে। পেজটি কোনো prop দিত না, ফলে
+  `submitAuthAction(undefined, …)` চলত এবং ব্যবহারকারী পেত:
+  _"Authentication service is not available for this page."_
+- অর্থাৎ **কেউ লগ-ইন করতে পারত না।** একই অবস্থা ছিল
+  `/forgot-password`, `/reset-password`, `/two-factor`, `/verify-email`,
+  `/signup`, `/onboarding`-এ।
+- আসল কাজ করা ফর্মগুলো (`components/auth/sign-in-form.tsx` ইত্যাদি, যারা
+  `features/auth/actions/sign-in` সার্ভার অ্যাকশন ডাকে) কোথাও ব্যবহৃত হচ্ছিল না।
+  কেবল `/register` পেজটিই সঠিকভাবে যুক্ত ছিল।
+- **সমাধান:** ছয়টি auth পেজ পুনর্লিখন করে কার্যকর ফর্মে যুক্ত করা হয়েছে,
+  `/signup` → `/register` এবং `/onboarding` → `/dashboard/setup` স্থায়ী
+  রিডাইরেক্ট করা হয়েছে, এবং ১১টি prop-চালিত নকল ফর্ম মুছে দেওয়া হয়েছে।
+
+### ২খ.২ 🔴 ওয়ার্কস্পেসের কোনো অথরাইজেশন গার্ড ছিল না — **সমাধান হয়েছে**
+
+`src/app/(app)/layout.tsx` ছিল এরকম:
+
+```
+userName="Alex Morgan"  companyName="Northstar Studio"
+searchCompanyId="company-demo"  role="owner"
+```
+
+অর্থাৎ পুরো টেন্যান্ট ওয়ার্কস্পেস (ইনভয়েস, পেমেন্ট, পে-আউট সহ) **হার্ডকোড করা
+ডেমো পরিচয়ে** চলত, কোনো `getSessionUser()` বা রিডাইরেক্ট ছাড়াই। অথচ
+`(admin)`, `(accountant)`, `(affiliate)`, `(reseller)` চারটি লেআউটেই সঠিক
+সেশন-গার্ড ছিল।
+
+**সমাধান:** লেআউটটি বাকি চারটির মতো করে লেখা হয়েছে — `getSessionUser()`,
+রোল-যাচাই, `landingPathForRole()` রিডাইরেক্ট, `loadCompany()`, এবং
+পারমিশন-সচেতন `visibleNavSections(user)` নেভিগেশন।
+
+### ২খ.৩ 🔴 ড্যাশবোর্ড ও নোটিফিকেশন নকল ডেটা দেখাত — **সমাধান হয়েছে**
+
+- `/dashboard` রেন্ডার করত `features/dashboard/dashboard-page.tsx`, যার সব
+  সংখ্যা আসত হার্ডকোড `DASHBOARD_DATA` থেকে।
+- অথচ `features/dashboard/queries/overview.ts` (আসল, টেন্যান্ট-স্কোপড DB
+  কোয়েরি) এবং `components/dashboard/*` কার্ডগুলো তৈরি থাকলেও অব্যবহৃত ছিল।
+- **সমাধান:** `/dashboard` এখন `loadDashboardOverview()` ব্যবহার করে;
+  নোটিফিকেশনের জন্য নতুন `features/notifications/queries/list-notifications.ts`
+  লেখা হয়েছে; ডেমো ফাইল দুটি মুছে দেওয়া হয়েছে।
+
+### ২খ.৪ 🟠 ৩৫টি নেভিগেশন লিংকের ১৬টি ভাঙা ছিল — **সমাধান হয়েছে**
+
+`NAV_MAP`-এ ছিল পুরনো সমতল পাথ (`/clients`, `/invoices`, `/settings`,
+`/team`, `/wallet`, `/admin/kyc` …), অথচ আসল রাউট `/dashboard/clients`
+ইত্যাদি। `[...slug]` catch-all রাউট থাকায় ভাঙা লিংক 404 না দিয়ে **ভুল পেজ**
+দেখাত, তাই বিল্ডে কিছুই ধরা পড়ত না।
+
+**সমাধান:** পুরো `NAV_MAP` `ROUTES` ধ্রুবক থেকে পুনর্লিখিত, এবং তৈরি থাকা
+অথচ মেনুতে অনুপস্থিত ৯টি সেকশন (banking, projects, contracts, files,
+loyalty, marketplace, developers, subscriptions, billing) যোগ করা হয়েছে।
+
+### ২খ.৫ 🟠 আরও যেসব জিনিস দুইবার ছিল — **সব একীভূত**
+
+| দুইবার ছিল                                                                                        | এখন একটাই                                           |
+| ------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| `components/layouts/` (AppShell, Sidebar, Topbar, MobileNav, Breadcrumb)                          | `components/layout/` (সেশন-সচেতন)                   |
+| `components/shared/{empty,error,loading}-state`, `file-uploader`                                  | `components/ui/*`, `components/files/file-uploader` |
+| `components/shared/{data-table,data-table-toolbar,confirm-dialog,image-uploader}` (০ ব্যবহারকারী) | অপসারিত                                             |
+| `src/lib/cn.ts` আর `src/lib/utils.ts`-এর `cn()`                                                   | `@/lib/utils` (৪৭টি ফাইল রিপয়েন্ট)                 |
+| `config/gateways.ts` বনাম `features/gateways/catalog.ts`                                          | `features/gateways/catalog.ts`                      |
+| `features/marketing/section-heading` বনাম `components/marketing/section-heading`                  | `components/marketing/section-heading`              |
+| `types/client.ts`, `types/product.ts` (মুছে ফেলা দ্বীপের অবশিষ্ট)                                 | অপসারিত                                             |
+| `/signup` বনাম `/register`, `/onboarding` বনাম `/dashboard/setup`                                 | রিডাইরেক্ট                                          |
+
+### ২খ.৬ 🟠 TS enum আর DB enum আলাদা ছিল — **সমাধান হয়েছে**
+
+`src/types/notification.ts`-এর `NotificationType` ইউনিয়নে ছিল
+`staff_invited`, `low_stock_alert`, `subscription_renewal_due` — কিন্তু
+ডাটাবেসের `public.notification_type` enum-এ আছে `team_invitation`,
+`low_stock`, `subscription_changed`, এবং আরও চারটি মান যা TS-এ ছিলই না।
+DB-কে কর্তৃত্বশীল ধরে ইউনিয়নটি মিলিয়ে দেওয়া হয়েছে এবং আইকন-ম্যাপ আপডেট করা হয়েছে।
+
+### ২খ.৭ নতুন দুইটি স্থায়ী গেট
+
+| কমান্ড                     | কী আটকায়                                                                                                                                                                    |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run check:navigation` | কোনো নেভিগেশন লিংক বা `ROUTES` এন্ট্রি অস্তিত্বহীন রাউটে গেলে, বা একই nav key দুইবার থাকলে। catch-all রাউটকে ইচ্ছাকৃতভাবে উপেক্ষা করা হয়, যাতে সেটি ভাঙা লিংক ঢেকে না দেয়। |
+| `npm run check:deadcode`   | কোনো entry point থেকে পৌঁছানো যায় না এমন মডিউলের সংখ্যা বেসলাইনের (১১০) উপরে উঠলে।                                                                                          |
+
+দুটিই `npm run verify` ও CI-এর verify জবে যুক্ত।
+
+---
+
 ## ৩. যা এখনো বাকি (সচেতনভাবে করা হয়নি)
 
 | #   | বিষয়                                          | কেন এখন করা হয়নি                                                                                                                                                                                                  |

@@ -11,21 +11,26 @@ export type NotificationChannel = 'in_app' | 'email' | 'whatsapp' | 'sms' | 'tel
 
 /**
  * The kind of event a notification represents, used to pick an icon and a
- * deep link target.
+ * deep link target. This union must stay identical to the
+ * `public.notification_type` enum in the database.
  */
 export type NotificationType =
+  | 'invoice_sent'
   | 'invoice_viewed'
   | 'invoice_paid'
   | 'invoice_overdue'
-  | 'payment_failed'
   | 'estimate_approved'
   | 'estimate_declined'
-  | 'staff_invited'
-  | 'kyc_status_changed'
+  | 'payment_received'
+  | 'payment_failed'
   | 'payout_processed'
-  | 'low_stock_alert'
-  | 'subscription_renewal_due'
-  | 'system_announcement';
+  | 'kyc_status_changed'
+  | 'subscription_changed'
+  | 'low_stock'
+  | 'team_invitation'
+  | 'support_reply'
+  | 'system_announcement'
+  | 'security_alert';
 
 /**
  * One in-app notification for a specific user.

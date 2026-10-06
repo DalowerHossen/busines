@@ -19,14 +19,14 @@ import {
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { Notification, NotificationType } from '@/types/notification';
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
-import { EmptyState } from '@/components/shared';
+import { EmptyState } from '@/components/ui/empty-state';
 import { useNotificationStore } from '@/stores';
-import { DASHBOARD_NOTIFICATIONS } from './dashboard-data';
 
 export function NotificationCenter({
-  initialNotifications = DASHBOARD_NOTIFICATIONS,
+  initialNotifications,
 }: {
-  readonly initialNotifications?: readonly Notification[];
+  /** Notifications read on the server for the signed in account. */
+  readonly initialNotifications: readonly Notification[];
 }): ReactNode {
   const notifications = useNotificationStore((state) => state.notifications);
   const unreadCount = useNotificationStore((state) => state.unreadCount);
@@ -99,7 +99,7 @@ export function NotificationCenter({
           ) : (
             <EmptyState
               className="m-5"
-              icon={<CheckCircle2 className="h-5 w-5" aria-hidden="true" />}
+              icon={CheckCircle2}
               title={filter === 'unread' ? 'You are all caught up' : 'No notifications yet'}
               description={
                 filter === 'unread'
@@ -221,19 +221,21 @@ function getNotificationIcon(type: NotificationType): LucideIcon {
     case 'payment_failed':
       return type === 'invoice_paid' ? CheckCircle2 : CircleAlert;
     case 'invoice_overdue':
+    case 'security_alert':
       return CircleAlert;
     case 'estimate_approved':
     case 'estimate_declined':
       return FileCheck2;
-    case 'staff_invited':
+    case 'team_invitation':
       return Users;
     case 'kyc_status_changed':
       return ShieldCheck;
+    case 'payment_received':
     case 'payout_processed':
       return WalletCards;
-    case 'low_stock_alert':
+    case 'low_stock':
       return Package;
-    case 'subscription_renewal_due':
+    case 'subscription_changed':
       return CreditCard;
     case 'system_announcement':
       return Info;

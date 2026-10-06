@@ -1,5 +1,5 @@
 import { forwardRef, type HTMLAttributes, type LabelHTMLAttributes } from 'react';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils';
 import { Label } from './label';
 
 export const Field = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(

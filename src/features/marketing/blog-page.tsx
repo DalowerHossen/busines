@@ -3,7 +3,7 @@ import { ArrowRight, BookOpen, CalendarDays } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { buttonVariants } from '@/components/ui';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils';
 import { PUBLIC_BLOG_POSTS } from './public-pages-data';
 
 export function BlogPageContent(): ReactNode {

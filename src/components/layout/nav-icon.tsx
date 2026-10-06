@@ -4,7 +4,7 @@
 
 import { createElement } from 'react';
 
-import { getNavIcon } from '@/components/layouts/nav-icons';
+import { getNavIcon } from '@/components/layout/nav-icons';
 import type { NavIconName } from '@/config/navigation';
 
 export interface NavIconProps {

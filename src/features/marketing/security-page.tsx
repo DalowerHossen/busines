@@ -3,7 +3,7 @@ import { ArrowUpRight, Bug, LockKeyhole, ShieldCheck } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Badge, Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { buttonVariants } from '@/components/ui';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils';
 import { SECURITY_PRINCIPLES } from './public-pages-data';
 
 export function SecurityPageContent(): ReactNode {

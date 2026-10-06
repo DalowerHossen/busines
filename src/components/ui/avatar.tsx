@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { forwardRef, useState, type HTMLAttributes } from 'react';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils';
 
 export interface AvatarProps extends HTMLAttributes<HTMLSpanElement> {
   readonly src?: string | null;

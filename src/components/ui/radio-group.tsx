@@ -9,7 +9,7 @@ import {
   type InputHTMLAttributes,
   type ReactNode,
 } from 'react';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils';
 
 interface RadioContextValue {
   readonly value: string | undefined;

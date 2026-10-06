@@ -3,7 +3,7 @@ import { ArrowLeft, SearchX } from 'lucide-react';
 import { PublicSiteFrame } from '@/features/marketing';
 import { Badge } from '@/components/ui';
 import { buttonVariants } from '@/components/ui';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils';
 
 export default function NotFound(): React.ReactNode {
   return (

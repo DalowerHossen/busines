@@ -1,5 +1,5 @@
 import { forwardRef, type HTMLAttributes } from 'react';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils';
 
 export interface ProgressProps extends HTMLAttributes<HTMLDivElement> {
   readonly value?: number;

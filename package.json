@@ -20,7 +20,7 @@
     "format:check": "prettier --check .",
     "check:language": "node scripts/check-language.mjs",
     "check:placeholders": "node scripts/check-placeholders.mjs",
-    "verify": "npm run check:language && npm run check:placeholders && npm run check:schema && npm run typecheck && npm run verify:phase48 && npm run test && npm run lint && npm run format:check",
+    "verify": "npm run check:language && npm run check:placeholders && npm run check:schema && npm run check:navigation && npm run check:deadcode && npm run typecheck && npm run verify:phase48 && npm run test && npm run lint && npm run format:check",
     "verify:ecommerce": "tsx scripts/verify-ecommerce-signatures.ts && tsx scripts/verify-ecommerce-normalization.ts",
     "verify:security": "tsx scripts/verify-security.ts",
     "verify:mor": "tsx scripts/verify-mor.ts",
@@ -45,7 +45,9 @@
     "verify:phase48": "tsx scripts/verify-phase48.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "check:schema": "node scripts/check-schema-integrity.mjs"
+    "check:schema": "node scripts/check-schema-integrity.mjs",
+    "check:navigation": "node scripts/check-navigation.mjs",
+    "check:deadcode": "node scripts/check-dead-code.mjs --strict"
   },
   "dependencies": {
     "@hookform/resolvers": "3.9.1",

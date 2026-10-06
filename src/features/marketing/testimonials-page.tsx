@@ -3,7 +3,7 @@ import { ArrowRight, Quote } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Badge, Card, CardContent } from '@/components/ui';
 import { buttonVariants } from '@/components/ui';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils';
 import { CUSTOMER_STORIES } from './marketing-data';
 
 export function TestimonialsPageContent(): ReactNode {

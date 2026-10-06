@@ -3,7 +3,7 @@ import { ArrowRight, Lightbulb } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Badge, Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { buttonVariants } from '@/components/ui';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils';
 import { GUIDE_STEPS } from './public-pages-data';
 
 export function GuidesPageContent(): ReactNode {

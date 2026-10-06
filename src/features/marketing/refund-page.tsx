@@ -3,7 +3,7 @@ import { ArrowRight, CircleHelp, RotateCcw, Scale } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Badge, Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { buttonVariants } from '@/components/ui';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils';
 
 const REFUND_STEPS = [
   {

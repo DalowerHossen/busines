@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { badgeVariants, buttonVariants } from '@/components/ui';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils';
 
 assert.match(buttonVariants({ variant: 'primary', size: 'lg' }), /bg-primary/u);
 assert.match(buttonVariants({ variant: 'danger', size: 'sm' }), /bg-destructive/u);

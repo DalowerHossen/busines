@@ -3,7 +3,7 @@ import { ArrowLeft, FileCheck2 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Badge } from '@/components/ui';
 import { buttonVariants } from '@/components/ui';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils';
 
 const TERMS_SECTIONS = [
   [

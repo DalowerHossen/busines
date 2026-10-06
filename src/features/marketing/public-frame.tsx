@@ -2,7 +2,7 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import { buttonVariants } from '@/components/ui';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils';
 import { PublicMobileNav } from './public-mobile-nav';
 
 export function PublicSiteFrame({ children }: { readonly children: ReactNode }): ReactNode {

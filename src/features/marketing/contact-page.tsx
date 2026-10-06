@@ -3,7 +3,7 @@ import { ArrowUpRight, Clock3, MapPin } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Badge, Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { buttonVariants } from '@/components/ui';
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib/utils';
 import { CONTACT_PATHS } from './public-pages-data';
 
 export function ContactPageContent(): ReactNode {

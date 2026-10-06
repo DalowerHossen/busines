@@ -59,12 +59,53 @@ the only lineage:
 - Server environment validation is now lazy, so a production build no longer
   requires the full set of runtime secrets on the build machine.
 
+## Application lineage repair
+
+The same two-generation split existed above the database and has now been
+collapsed the same way:
+
+- `src/app/(app)/layout.tsx` wrapped the whole tenant workspace in a shell
+  with a hardcoded identity (`Alex Morgan`, `Northstar Studio`,
+  `company-demo`) and performed no session check at all, while the admin,
+  accountant, affiliate and reseller layouts all guarded correctly. It now
+  resolves the session, enforces the role, loads the company and filters the
+  navigation through `visibleNavSections`.
+- Every authentication page except `/register` rendered a prop-driven form
+  with no action bound, so signing in returned "Authentication service is
+  not available for this page". The pages now render the
+  `components/auth/*` forms that call the Server Actions, and the eleven
+  inert duplicates were removed. `/signup` and `/onboarding` redirect to
+  `/register` and `/dashboard/setup`.
+- `/dashboard` and `/notifications` rendered hardcoded fixtures while the
+  tenant-scoped `loadDashboardOverview` query and the dashboard cards sat
+  unused. Both pages now read the database; a `listNotifications` query was
+  added for the bell.
+- `components/layouts/` duplicated `components/layout/`; the command palette,
+  navigation utilities and icon registry were moved into the surviving
+  directory and the rest removed.
+- Sixteen of the thirty-five navigation links pointed at a flat route layout
+  that no longer exists. Because a catch-all marketing route answers any
+  unmatched path, they rendered the wrong page rather than failing. The map
+  is rebuilt from `ROUTES` and nine built sections that were missing from it
+  were added.
+- `src/lib/cn.ts`, the duplicated empty/error/loading states, the second file
+  uploader, `config/gateways.ts`, the second section heading and the orphaned
+  `types/client.ts` and `types/product.ts` were all removed.
+- `NotificationType` in TypeScript listed values the `public.notification_type`
+  enum does not have, and omitted six it does. The union now matches.
+
+Two gates were added so none of this can return quietly:
+`npm run check:navigation` fails on a link that resolves to no route, and
+`npm run check:deadcode` fails when unreachable modules rise above a recorded
+baseline. 106 modules remain unreachable; most are provider adapters written
+ahead of the phase that wires them, so they are reported rather than deleted.
+
 ## Current implementation inventory
 
-- 1479 source files under `src/`.
+- 1447 source files under `src/`, 1338 of them reachable from a route, the middleware, the instrumentation hook, the scripts or the tests.
 - 237 sequential Supabase migrations defining 230 tables, every one of them
   with row level security enabled and forced.
-- 148 App Router page files plus the generated sitemap, robots, favicon,
+- 147 App Router page files plus the generated sitemap, robots, favicon,
   not-found, error and loading boundaries.
 - 30 API route handlers, including the four cron endpoints.
 - 202 files containing Server Action implementations.

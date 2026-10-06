@@ -26,6 +26,8 @@ export const ROUTES = {
   expenses: '/dashboard/expenses',
   reports: '/dashboard/reports',
   banking: '/dashboard/banking',
+  projects: '/dashboard/projects',
+  marketing: '/dashboard/marketing/campaigns',
   contracts: '/dashboard/contracts',
   loyalty: '/dashboard/loyalty',
   files: '/dashboard/files',
