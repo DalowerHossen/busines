@@ -102,3 +102,99 @@ export const ROLE_CAPABILITIES: Readonly<Record<AccountRole, readonly Capability
 export function roleHasCapability(role: AccountRole, capability: Capability): boolean {
   return ROLE_CAPABILITIES[role].includes(capability);
 }
+
+import type { PermissionAction } from '@/types/enums';
+export type PermissionResource =
+  | 'clients'
+  | 'invoices'
+  | 'payments'
+  | 'expenses'
+  | 'reports'
+  | 'team'
+  | 'products'
+  | 'estimates'
+  | 'settings'
+  | 'subscriptions'
+  | 'banking'
+  | 'contracts'
+  | 'accounting'
+  | 'files';
+export type PermissionMap = Partial<Record<PermissionResource, PermissionAction[]>>;
+export const PERMISSION_RESOURCES = [
+  'clients',
+  'invoices',
+  'payments',
+  'expenses',
+  'reports',
+  'team',
+  'products',
+  'estimates',
+  'settings',
+  'subscriptions',
+  'banking',
+  'contracts',
+  'accounting',
+  'files',
+] as const;
+export const RESOURCE_DEFINITIONS: Readonly<
+  Record<string, { label: string; description: string; actions: readonly PermissionAction[] }>
+> = {
+  clients: {
+    label: 'Clients',
+    description: 'Client records and contacts.',
+    actions: ['view', 'create', 'edit', 'delete', 'export'],
+  },
+  invoices: {
+    label: 'Invoices',
+    description: 'Invoices and collections.',
+    actions: ['view', 'create', 'edit', 'delete', 'approve', 'export'],
+  },
+  payments: {
+    label: 'Payments',
+    description: 'Payments and refunds.',
+    actions: ['view', 'create', 'approve', 'export'],
+  },
+  expenses: {
+    label: 'Expenses',
+    description: 'Expenses and accounting.',
+    actions: ['view', 'create', 'edit', 'delete', 'approve', 'export'],
+  },
+  reports: { label: 'Reports', description: 'Reports and exports.', actions: ['view', 'export'] },
+  team: {
+    label: 'Team',
+    description: 'Team access.',
+    actions: ['view', 'create', 'edit', 'delete'],
+  },
+};
+export const RESOURCE_GROUPS = [
+  {
+    key: 'business',
+    label: 'Business',
+    resources: ['clients', 'invoices', 'payments', 'expenses'] as PermissionResource[],
+  },
+  { key: 'oversight', label: 'Oversight', resources: ['reports', 'team'] as PermissionResource[] },
+] as const;
+export const DEFAULT_STAFF_PERMISSIONS: PermissionMap = {
+  clients: ['view', 'create', 'edit'],
+  invoices: ['view', 'create', 'edit'],
+  payments: ['view'],
+  expenses: ['view', 'create', 'edit'],
+  reports: ['view'],
+};
+export const ACCOUNTANT_PERMISSIONS: PermissionMap = {
+  payments: ['view', 'export'],
+  expenses: ['view', 'export'],
+  reports: ['view', 'export'],
+};
+export function sanitisePermissionMap(value: unknown): PermissionMap {
+  if (!value || typeof value !== 'object') return {};
+  const result: PermissionMap = {};
+  for (const resource of PERMISSION_RESOURCES) {
+    const actions = (value as Record<string, unknown>)[resource];
+    if (Array.isArray(actions))
+      result[resource] = actions.filter(
+        (action): action is PermissionAction => typeof action === 'string'
+      ) as PermissionAction[];
+  }
+  return result;
+}

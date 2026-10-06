@@ -1,128 +1,142 @@
-// src/components/ui/tabs.tsx
-// Tabs that follow the keyboard pattern people expect: the arrow keys move
-// between tabs and only the selected tab is in the tab order.
-
 'use client';
 
-import { useId, useRef, type ReactNode } from 'react';
+import {
+  createContext,
+  forwardRef,
+  useContext,
+  useId,
+  useState,
+  type ButtonHTMLAttributes,
+  type HTMLAttributes,
+  type ReactNode,
+} from 'react';
+import { cn } from '@/lib/cn';
 
-import { cn } from '@/lib/utils';
-
-export interface TabDefinition {
-  /** Stable key, also used in the query string when tabs are linkable. */
-  value: string;
-  /** Text on the tab. */
-  label: string;
-  /** Small count shown after the label. */
-  count?: number;
-  /** Panel content. */
-  content: ReactNode;
+interface TabsContextValue {
+  readonly value: string;
+  readonly setValue: (value: string) => void;
+  readonly id: string;
+}
+const TabsContext = createContext<TabsContextValue | null>(null);
+function useTabs(): TabsContextValue {
+  const context = useContext(TabsContext);
+  if (!context) throw new Error('Tabs components must be used inside Tabs.');
+  return context;
 }
 
-export interface TabsProps {
-  /** Tabs to show. */
-  tabs: readonly TabDefinition[];
-  /** Key of the selected tab. */
-  value: string;
-  /** Called with the key of the tab that was chosen. */
-  onValueChange: (value: string) => void;
-  /** Accessible name for the tab strip. */
-  label: string;
-  /** Extra classes for the wrapper. */
-  className?: string;
-}
-
-/**
- * Renders a tab strip and the panel of the selected tab.
- *
- * @param props Tabs, selection and change handler.
- * @returns The rendered tabs.
- */
-export function Tabs({ tabs, value, onValueChange, label, className }: TabsProps) {
-  const baseId = useId();
-  const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
-  const activeTab = tabs.find((tab) => tab.value === value) ?? tabs[0];
-
-  /**
-   * Moves the selection with the arrow keys.
-   *
-   * @param event Keyboard event from a tab.
-   * @param index Position of the tab that has focus.
-   * @returns Nothing.
-   */
-  function onKeyDown(event: React.KeyboardEvent<HTMLButtonElement>, index: number): void {
-    if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') {
-      return;
-    }
-
-    event.preventDefault();
-
-    const step = event.key === 'ArrowRight' ? 1 : -1;
-    const nextIndex = (index + step + tabs.length) % tabs.length;
-    const nextTab = tabs[nextIndex];
-
-    if (nextTab) {
-      onValueChange(nextTab.value);
-      tabRefs.current[nextIndex]?.focus();
-    }
-  }
-
+export function Tabs({
+  defaultValue,
+  value,
+  onValueChange,
+  children,
+}: {
+  readonly defaultValue: string;
+  readonly value?: string;
+  readonly onValueChange?: (value: string) => void;
+  readonly children: ReactNode;
+}): ReactNode {
+  const [internalValue, setInternalValue] = useState(defaultValue);
+  const controlled = value !== undefined;
+  const resolvedValue = controlled ? value : internalValue;
+  const id = useId();
+  const setValue = (nextValue: string) => {
+    if (!controlled) setInternalValue(nextValue);
+    onValueChange?.(nextValue);
+  };
   return (
-    <div className={cn('space-y-4', className)}>
-      <div
-        role="tablist"
-        aria-label={label}
-        className="flex gap-1 overflow-x-auto border-b border-border"
-      >
-        {tabs.map((tab, index) => {
-          const isSelected = activeTab?.value === tab.value;
-
-          return (
-            <button
-              key={tab.value}
-              ref={(element) => {
-                tabRefs.current[index] = element;
-              }}
-              type="button"
-              role="tab"
-              id={`${baseId}-tab-${tab.value}`}
-              aria-selected={isSelected}
-              aria-controls={`${baseId}-panel-${tab.value}`}
-              tabIndex={isSelected ? 0 : -1}
-              onClick={() => {
-                onValueChange(tab.value);
-              }}
-              onKeyDown={(event) => {
-                onKeyDown(event, index);
-              }}
-              className={cn(
-                'min-h-touch whitespace-nowrap border-b-2 px-4 py-2 text-sm font-medium transition-colors',
-                isSelected
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
-              )}
-            >
-              {tab.label}
-              {typeof tab.count === 'number' ? (
-                <span className="ml-2 rounded-full bg-surface-muted px-2 py-0.5 text-xs text-muted-foreground">
-                  {tab.count}
-                </span>
-              ) : null}
-            </button>
-          );
-        })}
-      </div>
-
-      {activeTab ? (
-        <div
-          role="tabpanel"
-          id={`${baseId}-panel-${activeTab.value}`}
-          aria-labelledby={`${baseId}-tab-${activeTab.value}`}
-          tabIndex={0}
-        >
-          {activeTab.content}
-        </div>
-      ) : null}
-    </div>
+    <TabsContext.Provider value={{ value: resolvedValue, setValue, id }}>
+      {children}
+    </TabsContext.Provider>
   );
 }
+
+export const TabsList = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <div
+      ref={ref}
+      role="tablist"
+      className={cn(
+        'inline-flex min-h-11 items-center gap-1 rounded-lg bg-surface-muted p-1',
+        className
+      )}
+      {...props}
+    />
+  )
+);
+TabsList.displayName = 'TabsList';
+
+export interface TabsTriggerProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  readonly value: string;
+}
+export const TabsTrigger = forwardRef<HTMLButtonElement, TabsTriggerProps>(
+  ({ className, value, onClick, onKeyDown, type = 'button', ...props }, ref) => {
+    const context = useTabs();
+    const active = context.value === value;
+    const selectAdjacent = (direction: number) => {
+      const tabs = Array.from(
+        document.querySelectorAll<HTMLButtonElement>(`[role="tab"][data-tabs-id="${context.id}"]`)
+      );
+      const currentIndex = tabs.indexOf(document.activeElement as HTMLButtonElement);
+      tabs[(currentIndex + direction + tabs.length) % tabs.length]?.focus();
+      tabs[(currentIndex + direction + tabs.length) % tabs.length]?.click();
+    };
+    return (
+      <button
+        ref={ref}
+        type={type}
+        id={`${context.id}-${value}`}
+        role="tab"
+        data-tabs-id={context.id}
+        aria-controls={`${context.id}-${value}-panel`}
+        aria-selected={active}
+        tabIndex={active ? 0 : -1}
+        className={cn(
+          'min-h-9 rounded-md px-3 text-sm font-semibold text-muted-foreground transition-colors duration-fast hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+          active && 'bg-card text-foreground shadow-xs',
+          className
+        )}
+        onClick={(event) => {
+          onClick?.(event);
+          if (!event.defaultPrevented) context.setValue(value);
+        }}
+        onKeyDown={(event) => {
+          onKeyDown?.(event);
+          if (event.defaultPrevented) return;
+          if (event.key === 'ArrowRight') {
+            event.preventDefault();
+            selectAdjacent(1);
+          }
+          if (event.key === 'ArrowLeft') {
+            event.preventDefault();
+            selectAdjacent(-1);
+          }
+        }}
+        {...props}
+      />
+    );
+  }
+);
+TabsTrigger.displayName = 'TabsTrigger';
+
+export interface TabsContentProps extends HTMLAttributes<HTMLDivElement> {
+  readonly value: string;
+}
+export const TabsContent = forwardRef<HTMLDivElement, TabsContentProps>(
+  ({ className, value, ...props }, ref) => {
+    const context = useTabs();
+    const active = context.value === value;
+    return (
+      <div
+        ref={ref}
+        id={`${context.id}-${value}-panel`}
+        role="tabpanel"
+        hidden={!active}
+        tabIndex={0}
+        aria-labelledby={`${context.id}-${value}`}
+        className={cn('mt-4 outline-none focus-visible:ring-2 focus-visible:ring-ring', className)}
+        {...props}
+      />
+    );
+  }
+);
+TabsContent.displayName = 'TabsContent';

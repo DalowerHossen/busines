@@ -1,113 +1,152 @@
-// src/lib/security/rate-limit.ts
-// Request throttling backed by the database, so every instance of the
-// application shares one counter. The counting routine is restricted to the
-// service role, which is why the service client is used here.
+import { createHash } from 'node:crypto';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { SecurityProviderError, securityInvalidConfiguration } from './errors';
+import type { RateLimitKeyInput, RateLimitPolicy, RateLimitResult, RateLimitStore } from './types';
 
-import 'server-only';
-
-import { RATE_LIMIT_DEFAULTS } from '@/config/app';
-import { logger } from '@/lib/logger';
-import { getServiceSupabaseClient } from '@/lib/supabase/service';
-import { asRow, readBoolean, readNumber, readString } from '@/lib/records';
-
-export interface RateLimitDecision {
-  isAllowed: boolean;
-  limit: number;
-  remaining: number;
-  resetAt: string | null;
-  retryAfterSeconds: number;
+export function buildRateLimitKey(input: RateLimitKeyInput): string {
+  const canonical = [
+    input.pathname.trim().toLowerCase(),
+    input.method.trim().toUpperCase(),
+    normalizeIdentifier(input.ipAddress),
+    normalizeIdentifier(input.accountIdentifier),
+    normalizeUserAgent(input.userAgent),
+    normalizeIdentifier(input.requestFingerprint),
+  ].join('|');
+  return `security:v1:${createHash('sha256').update(canonical, 'utf8').digest('hex')}`;
 }
 
-export interface RateLimitOptions {
-  kind: string;
-  key: string;
-  limit?: number;
-  windowSeconds?: number;
-}
-
-/**
- * Counts one request against a bucket and reports whether it may continue.
- *
- * A database failure never blocks a legitimate request: the call is allowed
- * and the failure is logged instead.
- *
- * @param options Which bucket to count against and how generous it is.
- * @returns The decision for this request.
- */
-export async function consumeRateLimit(options: RateLimitOptions): Promise<RateLimitDecision> {
-  const limit = options.limit ?? RATE_LIMIT_DEFAULTS.maxRequests;
-  const windowSeconds = options.windowSeconds ?? RATE_LIMIT_DEFAULTS.windowSeconds;
-
-  try {
-    const supabase = getServiceSupabaseClient();
-    const { data, error } = await supabase.rpc('consume_rate_limit', {
-      p_bucket_kind: options.kind,
-      p_bucket_key: options.key,
-      p_limit: limit,
-      p_window_seconds: windowSeconds,
-    });
-
-    if (error) {
-      throw error;
-    }
-
-    const row = Array.isArray(data) ? asRow(data[0]) : null;
-
-    if (!row) {
-      return { isAllowed: true, limit, remaining: limit, resetAt: null, retryAfterSeconds: 0 };
-    }
-
-    const resetAt = readString(row, 'reset_at');
-    const resetMilliseconds = resetAt ? Date.parse(resetAt) - Date.now() : 0;
-
-    return {
-      isAllowed: readBoolean(row, 'is_allowed', true),
-      limit: readNumber(row, 'limit_value') ?? limit,
-      remaining: readNumber(row, 'remaining') ?? 0,
-      resetAt,
-      retryAfterSeconds: Math.max(1, Math.ceil(resetMilliseconds / 1000)),
-    };
-  } catch (caught) {
-    logger.error('The rate limit counter could not be reached', caught, {
-      kind: options.kind,
-    });
-
-    return { isAllowed: true, limit, remaining: limit, resetAt: null, retryAfterSeconds: 0 };
+export function validateRateLimitPolicy(policy: RateLimitPolicy): void {
+  if (
+    !policy.name ||
+    !Number.isSafeInteger(policy.limit) ||
+    policy.limit < 1 ||
+    !Number.isSafeInteger(policy.windowSeconds) ||
+    policy.windowSeconds < 1
+  ) {
+    throw securityInvalidConfiguration();
   }
 }
 
-/**
- * Builds the bucket key for an anonymous caller.
- *
- * @param route Route being called.
- * @param ipHash Hashed address of the caller.
- * @returns The bucket key.
- */
-export function anonymousBucketKey(route: string, ipHash: string | null): string {
-  return `${route}:${ipHash ?? 'unknown'}`;
+export async function enforceRateLimit(input: {
+  readonly store: RateLimitStore;
+  readonly key: RateLimitKeyInput;
+  readonly policy: RateLimitPolicy;
+}): Promise<RateLimitResult> {
+  validateRateLimitPolicy(input.policy);
+  const bucketKey = buildRateLimitKey(input.key);
+  try {
+    return await input.store.consume({
+      bucketKey,
+      limit: input.policy.limit,
+      windowSeconds: input.policy.windowSeconds,
+    });
+  } catch (error) {
+    if (error instanceof SecurityProviderError) throw error;
+    throw new SecurityProviderError('rate-limit-store', 'rate_limit_store_unavailable', 503, true);
+  }
 }
 
-/**
- * Builds the bucket key for a signed in caller.
- *
- * @param route Route being called.
- * @param userId Account making the request.
- * @returns The bucket key.
- */
-export function accountBucketKey(route: string, userId: string): string {
-  return `${route}:user:${userId}`;
-}
-
-/**
- * Turns a decision into the headers an API client expects.
- *
- * @param decision Decision taken for this request.
- * @returns Headers describing the remaining allowance.
- */
-export function rateLimitHeaders(decision: RateLimitDecision): Record<string, string> {
+export function createSupabaseRateLimitStore(client: SupabaseClient): RateLimitStore {
   return {
-    'RateLimit-Limit': String(decision.limit),
-    'RateLimit-Remaining': String(Math.max(0, decision.remaining)),
-    'RateLimit-Reset': String(decision.retryAfterSeconds),
+    async consume(input): Promise<RateLimitResult> {
+      const { data, error } = await client.rpc('consume_security_rate_limit', {
+        p_bucket_key: input.bucketKey,
+        p_limit: input.limit,
+        p_window_seconds: input.windowSeconds,
+      });
+      if (error) {
+        throw new SecurityProviderError(
+          'supabase-rate-limit',
+          'rate_limit_store_unavailable',
+          503,
+          true
+        );
+      }
+      const row = Array.isArray(data) ? data[0] : data;
+      if (!isRateLimitRow(row)) {
+        throw new SecurityProviderError(
+          'supabase-rate-limit',
+          'invalid_provider_response',
+          null,
+          false
+        );
+      }
+      return {
+        allowed: row.allowed,
+        remaining: row.remaining,
+        resetAt: row.reset_at,
+      };
+    },
+  };
+}
+
+function isRateLimitRow(
+  value: unknown
+): value is { readonly allowed: boolean; readonly remaining: number; readonly reset_at: string } {
+  if (typeof value !== 'object' || value === null) return false;
+  const record = value as Record<string, unknown>;
+  return (
+    typeof record.allowed === 'boolean' &&
+    typeof record.remaining === 'number' &&
+    Number.isInteger(record.remaining) &&
+    record.remaining >= 0 &&
+    typeof record.reset_at === 'string'
+  );
+}
+
+function normalizeIdentifier(value: string | undefined): string {
+  return (value ?? 'unknown').trim().slice(0, 256).toLowerCase();
+}
+
+function normalizeUserAgent(value: string | undefined): string {
+  return normalizeIdentifier(value).replace(/\s+/gu, ' ').slice(0, 200);
+}
+
+export function rateLimitHeaders(decision: LegacyRateLimitDecision): Record<string, string> {
+  return {
+    'X-RateLimit-Limit': String(decision.limit),
+    'X-RateLimit-Remaining': String(decision.remaining),
+    'X-RateLimit-Reset': decision.resetAt,
+  };
+}
+
+export interface LegacyRateLimitDecision {
+  readonly isAllowed: boolean;
+  readonly allowed: boolean;
+  readonly limit: number;
+  readonly remaining: number;
+  readonly retryAfterSeconds: number;
+  readonly resetAt: string;
+}
+
+export function anonymousBucketKey(kind: string, identifier: string | null | undefined): string {
+  return `anonymous:${kind}:${identifier ?? 'unknown'}`;
+}
+
+export function accountBucketKey(kind: string, identifier: string | null | undefined): string {
+  return `account:${kind}:${identifier ?? 'unknown'}`;
+}
+
+export async function consumeRateLimit(input: {
+  readonly kind: string;
+  readonly key: string;
+  readonly limit: number;
+  readonly windowSeconds: number;
+}): Promise<LegacyRateLimitDecision> {
+  const { createServerSupabaseClient } = await import('@/lib/supabase/server');
+  const result = await createSupabaseRateLimitStore(createServerSupabaseClient()).consume({
+    bucketKey: `${input.kind}:${input.key}`,
+    limit: input.limit,
+    windowSeconds: input.windowSeconds,
+  });
+  const resetAt = result.resetAt;
+  const retryAfterSeconds = Math.max(0, Math.ceil((Date.parse(resetAt) - Date.now()) / 1000));
+  return {
+    isAllowed: result.allowed,
+    allowed: result.allowed,
+    limit: input.limit,
+    remaining: result.remaining,
+    retryAfterSeconds,
+    resetAt,
   };
 }

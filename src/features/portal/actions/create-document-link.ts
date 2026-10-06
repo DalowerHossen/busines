@@ -6,25 +6,12 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { z } from 'zod';
-
 import { issueDocumentLink } from '@/features/portal/services/issue-document-link';
 import { createAction } from '@/lib/actions/create-action';
 import { recordAuditEntry } from '@/lib/audit/record';
 import { requireOwner, requireWritableCompany } from '@/lib/auth/guards';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { uuidSchema } from '@/lib/validation/primitives';
-
-export const createDocumentLinkSchema = z.object({
-  documentKind: z.enum(['invoice', 'estimate']),
-  documentId: uuidSchema,
-  recipientEmail: z
-    .string()
-    .trim()
-    .email()
-    .optional()
-    .transform((value) => (value && value.length > 0 ? value : null)),
-});
+import { createDocumentLinkSchema } from '@/features/portal/validation/document-link';
 
 export interface CreateDocumentLinkResult {
   /** Identifier of the stored link. */

@@ -1,155 +1,299 @@
-// src/components/ui/dropdown-menu.tsx
-// The menu behind a row of actions. It opens on click, closes on escape or on
-// a click outside, and the arrow keys walk through the items.
-
 'use client';
 
-import { type LucideIcon } from 'lucide-react';
-import { useCallback, useRef, useState, type ReactNode } from 'react';
+import {
+  forwardRef,
+  useContext,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  createContext,
+  type ButtonHTMLAttributes,
+  type ComponentType,
+  type HTMLAttributes,
+  type ReactNode,
+} from 'react';
+import { cn } from '@/lib/cn';
 
-import { useClickOutside } from '@/hooks/use-click-outside';
-import { cn } from '@/lib/utils';
+interface DropdownContextValue {
+  readonly open: boolean;
+  readonly setOpen: (open: boolean) => void;
+  readonly menuId: string;
+}
+
+const DropdownContext = createContext<DropdownContextValue | null>(null);
+function useDropdown(): DropdownContextValue {
+  const context = useContext(DropdownContext);
+  if (!context) throw new Error('Dropdown menu components must be used inside DropdownMenu.');
+  return context;
+}
 
 export interface DropdownItem {
-  /** Stable key for the item. */
-  key: string;
-  /** Text shown in the menu. */
-  label: string;
-  /** Icon shown before the text. */
-  icon?: LucideIcon;
-  /** Called when the item is chosen. */
-  onSelect: () => void;
-  /** Marks a destructive action, such as deleting. */
-  isDestructive?: boolean;
-  /** Greys the item out. */
-  isDisabled?: boolean;
+  readonly key: string;
+  readonly label: string;
+  readonly icon?: ComponentType<{ className?: string }>;
+  readonly onSelect: () => void;
+  readonly isDisabled?: boolean;
+  readonly isDestructive?: boolean;
 }
 
 export interface DropdownMenuProps {
-  /** The control that opens the menu. */
-  trigger: ReactNode;
-  /** Accessible name of the trigger. */
-  triggerLabel: string;
-  /** Items to offer. */
-  items: readonly DropdownItem[];
-  /** Which side of the trigger the panel appears on. */
-  align?: 'start' | 'end';
-  /** Extra classes for the wrapper. */
-  className?: string;
+  readonly children?: ReactNode;
+  readonly defaultOpen?: boolean;
+  readonly align?: 'start' | 'end';
+  readonly triggerLabel?: string;
+  readonly items?: readonly DropdownItem[];
+  readonly trigger?: ReactNode;
 }
 
-/**
- * Renders a button that opens a list of actions.
- *
- * @param props Trigger, items and alignment.
- * @returns The rendered menu.
- */
 export function DropdownMenu({
-  trigger,
+  children,
+  defaultOpen = false,
+  align = 'end',
   triggerLabel,
   items,
-  align = 'end',
-  className,
-}: DropdownMenuProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const itemRefs = useRef<Array<HTMLButtonElement | null>>([]);
-
-  const close = useCallback(() => {
-    setIsOpen(false);
-  }, []);
-
-  useClickOutside(containerRef, close, isOpen);
-
-  /**
-   * Moves focus between items with the arrow keys.
-   *
-   * @param event Keyboard event from an item.
-   * @param index Position of the item that has focus.
-   * @returns Nothing.
-   */
-  function onItemKeyDown(event: React.KeyboardEvent<HTMLButtonElement>, index: number): void {
-    if (event.key === 'Escape') {
-      close();
-      return;
-    }
-
-    if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') {
-      return;
-    }
-
-    event.preventDefault();
-
-    const step = event.key === 'ArrowDown' ? 1 : -1;
-    const nextIndex = (index + step + items.length) % items.length;
-    itemRefs.current[nextIndex]?.focus();
-  }
-
-  return (
-    <div ref={containerRef} className={cn('relative inline-block', className)}>
-      <span
-        role="button"
-        tabIndex={0}
-        aria-haspopup="menu"
-        aria-expanded={isOpen}
-        aria-label={triggerLabel}
-        onClick={() => {
-          setIsOpen((open) => !open);
-        }}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault();
-            setIsOpen((open) => !open);
-          }
-        }}
-        className="inline-flex"
-      >
-        {trigger}
-      </span>
-
-      {isOpen ? (
-        <div
-          role="menu"
+  trigger,
+}: DropdownMenuProps): ReactNode {
+  const [open, setOpen] = useState(defaultOpen);
+  const menuId = useId();
+  if (items && trigger) {
+    return (
+      <div className="relative inline-block">
+        <button
+          type="button"
           aria-label={triggerLabel}
-          className={cn(
-            'absolute z-dropdown mt-2 min-w-48 animate-fade-in overflow-hidden rounded-md border border-border bg-popover py-1 shadow-md',
-            align === 'end' ? 'right-0' : 'left-0'
-          )}
+          aria-expanded={open}
+          aria-haspopup="menu"
+          onClick={() => setOpen((value) => !value)}
         >
-          {items.map((item, index) => {
-            const Icon = item.icon;
-
-            return (
-              <button
-                key={item.key}
-                ref={(element) => {
-                  itemRefs.current[index] = element;
-                }}
-                type="button"
-                role="menuitem"
-                disabled={item.isDisabled}
-                onKeyDown={(event) => {
-                  onItemKeyDown(event, index);
-                }}
-                onClick={() => {
-                  close();
-                  item.onSelect();
-                }}
-                className={cn(
-                  'flex min-h-touch w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors',
-                  item.isDestructive
-                    ? 'text-destructive hover:bg-destructive-subtle'
-                    : 'text-popover-foreground hover:bg-surface-muted',
-                  item.isDisabled ? 'cursor-not-allowed opacity-50' : ''
-                )}
-              >
-                {Icon ? <Icon aria-hidden="true" className="h-4 w-4" /> : null}
-                {item.label}
-              </button>
-            );
-          })}
-        </div>
-      ) : null}
-    </div>
+          {trigger}
+        </button>
+        {open ? (
+          <div
+            id={menuId}
+            role="menu"
+            className={cn(
+              'absolute z-dropdown mt-2 min-w-48 rounded-lg border border-border bg-popover p-1.5 text-popover-foreground shadow-lg',
+              align === 'end' ? 'right-0' : 'left-0'
+            )}
+          >
+            {items.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.key}
+                  type="button"
+                  role="menuitem"
+                  disabled={item.isDisabled}
+                  className={cn(
+                    'flex min-h-10 w-full items-center gap-2 rounded-md px-3 text-left text-sm hover:bg-surface-muted disabled:opacity-50',
+                    item.isDestructive && 'text-destructive'
+                  )}
+                  onClick={() => {
+                    item.onSelect();
+                    setOpen(false);
+                  }}
+                >
+                  {Icon ? <Icon className="h-4 w-4" /> : null}
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
+      </div>
+    );
+  }
+  return (
+    <DropdownContext.Provider value={{ open, setOpen, menuId }}>
+      {children}
+    </DropdownContext.Provider>
   );
 }
+
+export const DropdownMenuTrigger = forwardRef<
+  HTMLButtonElement,
+  ButtonHTMLAttributes<HTMLButtonElement>
+>(({ className, onClick, type = 'button', ...props }, ref) => {
+  const context = useDropdown();
+  return (
+    <button
+      ref={ref}
+      type={type}
+      aria-haspopup="menu"
+      aria-expanded={context.open}
+      aria-controls={context.open ? context.menuId : undefined}
+      className={className}
+      onClick={(event) => {
+        onClick?.(event);
+        if (!event.defaultPrevented) context.setOpen(!context.open);
+      }}
+      {...props}
+    />
+  );
+});
+DropdownMenuTrigger.displayName = 'DropdownMenuTrigger';
+
+export interface DropdownMenuContentProps extends HTMLAttributes<HTMLDivElement> {
+  readonly align?: 'start' | 'end';
+}
+
+export const DropdownMenuContent = forwardRef<HTMLDivElement, DropdownMenuContentProps>(
+  ({ className, align = 'end', children, onKeyDown, ...props }, ref) => {
+    const context = useDropdown();
+    const localRef = useRef<HTMLDivElement | null>(null);
+    const setRefs = (node: HTMLDivElement | null) => {
+      localRef.current = node;
+      if (typeof ref === 'function') ref(node);
+      else if (ref) ref.current = node;
+    };
+    useEffect(() => {
+      if (!context.open) return undefined;
+      const closeOnOutsideClick = (event: MouseEvent) => {
+        if (localRef.current && !localRef.current.parentElement?.contains(event.target as Node))
+          context.setOpen(false);
+      };
+      document.addEventListener('mousedown', closeOnOutsideClick);
+      const firstItem = localRef.current?.querySelector<HTMLElement>(
+        '[role="menuitem"]:not([aria-disabled="true"])'
+      );
+      firstItem?.focus();
+      return () => document.removeEventListener('mousedown', closeOnOutsideClick);
+    }, [context]);
+    if (!context.open) return null;
+    return (
+      <div
+        ref={setRefs}
+        id={context.menuId}
+        role="menu"
+        tabIndex={-1}
+        className={cn(
+          'absolute right-0 z-dropdown mt-2 min-w-48 origin-top-right animate-fade-in rounded-lg border border-border bg-popover p-1.5 text-popover-foreground shadow-lg outline-none',
+          align === 'start' && 'left-0 right-auto origin-top-left',
+          className
+        )}
+        onKeyDown={(event) => {
+          onKeyDown?.(event);
+          if (event.defaultPrevented) return;
+          const items = Array.from(
+            localRef.current?.querySelectorAll<HTMLElement>(
+              '[role="menuitem"]:not([aria-disabled="true"])'
+            ) ?? []
+          );
+          const currentIndex = items.indexOf(document.activeElement as HTMLElement);
+          if (event.key === 'Escape') {
+            event.preventDefault();
+            context.setOpen(false);
+          } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+            event.preventDefault();
+            const direction = event.key === 'ArrowDown' ? 1 : -1;
+            items[(currentIndex + direction + items.length) % items.length]?.focus();
+          }
+        }}
+        {...props}
+      >
+        {children}
+      </div>
+    );
+  }
+);
+DropdownMenuContent.displayName = 'DropdownMenuContent';
+
+export interface DropdownMenuItemProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  readonly inset?: boolean;
+}
+
+export const DropdownMenuItem = forwardRef<HTMLButtonElement, DropdownMenuItemProps>(
+  ({ className, inset, onClick, disabled, type = 'button', ...props }, ref) => {
+    const context = useDropdown();
+    return (
+      <button
+        ref={ref}
+        type={type}
+        role="menuitem"
+        aria-disabled={disabled || undefined}
+        disabled={disabled}
+        className={cn(
+          'flex min-h-10 w-full items-center rounded-md px-3 text-left text-sm outline-none transition-colors duration-fast hover:bg-surface-muted focus:bg-surface-muted disabled:pointer-events-none disabled:opacity-50',
+          inset && 'pl-9',
+          className
+        )}
+        onClick={(event) => {
+          onClick?.(event);
+          if (!event.defaultPrevented && !disabled) context.setOpen(false);
+        }}
+        {...props}
+      />
+    );
+  }
+);
+DropdownMenuItem.displayName = 'DropdownMenuItem';
+
+export const DropdownMenuCheckboxItem = forwardRef<
+  HTMLButtonElement,
+  DropdownMenuItemProps & {
+    readonly checked?: boolean;
+    readonly onCheckedChange?: (checked: boolean) => void;
+  }
+>(
+  (
+    { checked = false, onCheckedChange, children, onClick, className, disabled, inset, ...props },
+    ref
+  ) => {
+    const context = useDropdown();
+    return (
+      <button
+        ref={ref}
+        type="button"
+        role="menuitemcheckbox"
+        aria-checked={checked}
+        aria-disabled={disabled || undefined}
+        disabled={disabled}
+        className={cn(
+          'flex min-h-10 w-full items-center gap-2 rounded-md px-3 text-left text-sm outline-none transition-colors duration-fast hover:bg-surface-muted focus:bg-surface-muted disabled:pointer-events-none disabled:opacity-50',
+          inset && 'pl-9',
+          className
+        )}
+        onClick={(event) => {
+          onClick?.(event);
+          if (!event.defaultPrevented && !disabled) onCheckedChange?.(!checked);
+          if (!disabled) context.setOpen(false);
+        }}
+        {...props}
+      >
+        <span
+          className={cn(
+            'flex h-4 w-4 items-center justify-center rounded border text-[10px]',
+            checked ? 'border-primary bg-primary text-primary-foreground' : 'border-input'
+          )}
+          aria-hidden="true"
+        >
+          {checked ? '✓' : null}
+        </span>
+        {children}
+      </button>
+    );
+  }
+);
+DropdownMenuCheckboxItem.displayName = 'DropdownMenuCheckboxItem';
+
+export const DropdownMenuLabel = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        'px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground',
+        className
+      )}
+      {...props}
+    />
+  )
+);
+DropdownMenuLabel.displayName = 'DropdownMenuLabel';
+
+export const DropdownMenuSeparator = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <div ref={ref} role="separator" className={cn('my-1.5 h-px bg-border', className)} {...props} />
+  )
+);
+DropdownMenuSeparator.displayName = 'DropdownMenuSeparator';

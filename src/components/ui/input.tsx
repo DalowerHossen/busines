@@ -1,63 +1,78 @@
-// src/components/ui/input.tsx
-// A single line field. It is tall enough to tap, marks itself as invalid for
-// assistive technology and can carry a prefix such as a currency symbol.
-
 import { forwardRef, type InputHTMLAttributes, type ReactNode } from 'react';
+import { cn } from '@/lib/cn';
 
-import { cn } from '@/lib/utils';
-
-export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'prefix'> {
-  /** True when the field failed validation. */
-  isInvalid?: boolean;
-  /** Short text or icon shown inside the field, before the value. */
-  prefix?: ReactNode;
-  /** Short text or icon shown inside the field, after the value. */
-  suffix?: ReactNode;
+export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+  readonly error?: string;
+  readonly isInvalid?: boolean;
+  readonly startAdornment?: ReactNode;
+  readonly endAdornment?: ReactNode;
+  readonly label?: ReactNode;
+  readonly description?: ReactNode;
 }
-
-export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
-  { className, isInvalid = false, prefix, suffix, disabled, ...props },
-  ref
-) {
-  const field = (
-    <input
-      ref={ref}
-      disabled={disabled}
-      aria-invalid={isInvalid || undefined}
-      className={cn(
-        'h-11 min-h-touch w-full rounded-md border bg-surface px-3 text-sm text-foreground transition-colors duration-fast',
-        'placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:bg-surface-muted disabled:opacity-70',
-        isInvalid ? 'border-destructive' : 'border-input',
-        prefix ? 'rounded-l-none border-l-0' : '',
-        suffix ? 'rounded-r-none border-r-0' : '',
-        className
-      )}
-      {...props}
-    />
-  );
-
-  if (!prefix && !suffix) {
-    return field;
+export const Input = forwardRef<HTMLInputElement, InputProps>(
+  (
+    {
+      className,
+      error,
+      isInvalid,
+      startAdornment,
+      endAdornment,
+      label,
+      description,
+      id,
+      'aria-describedby': describedBy,
+      ...props
+    },
+    ref
+  ) => {
+    const invalid = Boolean(error || isInvalid);
+    const errorId = error && id ? `${id}-error` : undefined;
+    const ariaDescribedBy = [describedBy, errorId].filter(Boolean).join(' ') || undefined;
+    return (
+      <>
+        {label ? (
+          <label htmlFor={id} className="mb-1.5 block text-sm font-medium">
+            {label}
+          </label>
+        ) : null}
+        {description ? <p className="mb-1.5 text-xs text-muted-foreground">{description}</p> : null}
+        <span className="relative block">
+          {startAdornment ? (
+            <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
+              {startAdornment}
+            </span>
+          ) : null}
+          <input
+            ref={ref}
+            id={id}
+            className={cn(
+              'flex h-11 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground shadow-xs outline-none transition-[border-color,box-shadow] duration-fast placeholder:text-muted-foreground/70 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 disabled:cursor-not-allowed disabled:bg-muted disabled:opacity-70',
+              startAdornment && 'pl-10',
+              endAdornment && 'pr-10',
+              invalid && 'border-destructive focus:border-destructive focus:ring-destructive/20',
+              className
+            )}
+            aria-invalid={invalid ? true : undefined}
+            aria-describedby={ariaDescribedBy}
+            {...props}
+          />
+          {endAdornment ? (
+            <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground">
+              {endAdornment}
+            </span>
+          ) : null}
+        </span>
+        {error && id ? (
+          <span
+            id={errorId}
+            role="alert"
+            className="mt-1.5 block text-xs font-medium text-destructive"
+          >
+            {error}
+          </span>
+        ) : null}
+      </>
+    );
   }
-
-  return (
-    <div
-      className={cn(
-        'flex w-full items-stretch rounded-md border',
-        isInvalid ? 'border-destructive' : 'border-input'
-      )}
-    >
-      {prefix ? (
-        <span className="flex items-center rounded-l-md bg-surface-muted px-3 text-sm text-muted-foreground">
-          {prefix}
-        </span>
-      ) : null}
-      {field}
-      {suffix ? (
-        <span className="flex items-center rounded-r-md bg-surface-muted px-3 text-sm text-muted-foreground">
-          {suffix}
-        </span>
-      ) : null}
-    </div>
-  );
-});
+);
+Input.displayName = 'Input';

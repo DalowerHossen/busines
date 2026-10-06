@@ -25,7 +25,7 @@ function toAddressLines(address: ClientAddressRecord): string[] {
     address.addressLine1,
     address.addressLine2,
     [address.city, address.stateRegion, address.postalCode].filter(Boolean).join(', '),
-    country === null ? address.countryCode : country.name,
+    country?.name ?? address.countryCode,
   ].filter((line): line is string => typeof line === 'string' && line.trim().length > 0);
 }
 

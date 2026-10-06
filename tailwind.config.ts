@@ -4,10 +4,9 @@
 // per tenant branding can change instantly at runtime without a rebuild.
 
 import type { Config } from 'tailwindcss';
-import animatePlugin from 'tailwindcss-animate';
 
 const config: Config = {
-  darkMode: ['class'],
+  darkMode: 'class',
   content: [
     './src/app/**/*.{ts,tsx}',
     './src/components/**/*.{ts,tsx}',
@@ -199,7 +198,6 @@ const config: Config = {
       },
     },
   },
-  plugins: [animatePlugin],
 };
 
 export default config;

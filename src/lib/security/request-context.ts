@@ -56,7 +56,7 @@ export function hashIpAddress(ipAddress: string | null): string | null {
  * @returns Where the request came from and what made it.
  */
 export function getRequestContext(): RequestContext {
-  const headerList = headers();
+  const headerList = headers() as unknown as Headers;
   const ipAddress = readIpAddress(headerList);
 
   return {

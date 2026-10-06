@@ -83,7 +83,11 @@ export function PermissionMatrix({
 
           <div className="space-y-4">
             {group.resources.map((resource) => {
-              const definition = RESOURCE_DEFINITIONS[resource];
+              const definition = RESOURCE_DEFINITIONS[resource] ?? {
+                label: resource,
+                description: 'Permission settings.',
+                actions: [],
+              };
               const chosen = value[resource] ?? [];
               const offered = definition.actions.filter((action) => action !== 'send');
 

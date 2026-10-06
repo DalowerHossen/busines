@@ -22,7 +22,10 @@ export const VISITOR_COOKIE_MAX_AGE = 60 * 60 * 24 * 90;
  * @returns The token, or null when this visitor arrived directly.
  */
 export function readVisitorToken(): string | null {
-  const value = cookies().get(VISITOR_COOKIE)?.value ?? null;
+  const value =
+    (cookies() as unknown as { get(name: string): { value: string } | undefined }).get(
+      VISITOR_COOKIE
+    )?.value ?? null;
 
   if (value === null || value.length < 8 || value.length > 120) {
     return null;

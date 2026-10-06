@@ -3,7 +3,8 @@
 // only when the page exists, the role is allowed and the permission is held,
 // so nobody is ever offered a link that refuses them or leads nowhere.
 
-import { NAV_SECTIONS, type NavItem, type NavSection } from '@/config/navigation';
+import { NAV_SECTIONS, type NavSection, type NavSectionItem } from '@/config/navigation';
+import type { PermissionResource } from '@/config/permissions';
 import { can } from '@/lib/auth/permissions';
 import type { SessionUser } from '@/lib/auth/types';
 
@@ -14,7 +15,7 @@ import type { SessionUser } from '@/lib/auth/types';
  * @param user Signed in account.
  * @returns True when the entry should be rendered.
  */
-function isVisible(item: NavItem, user: SessionUser): boolean {
+function isVisible(item: NavSectionItem, user: SessionUser): boolean {
   if (!item.isBuilt || !item.roles.includes(user.role)) {
     return false;
   }
@@ -23,7 +24,7 @@ function isVisible(item: NavItem, user: SessionUser): boolean {
     return true;
   }
 
-  return can(user, item.permission, 'view');
+  return can(user, item.permission as PermissionResource, 'view');
 }
 
 /**
@@ -47,8 +48,11 @@ export function visibleNavSections(user: SessionUser): NavSection[] {
  * @param pathname Path of the current page.
  * @returns The matching entry, or null when the page is not in the menu.
  */
-export function activeNavItem(sections: readonly NavSection[], pathname: string): NavItem | null {
-  let match: NavItem | null = null;
+export function activeNavItem(
+  sections: readonly NavSection[],
+  pathname: string
+): NavSectionItem | null {
+  let match: NavSectionItem | null = null;
 
   for (const section of sections) {
     for (const item of section.items) {

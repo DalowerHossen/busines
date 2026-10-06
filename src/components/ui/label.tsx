@@ -1,35 +1,26 @@
-// src/components/ui/label.tsx
-// The label above every field. A required field says so in words as well as
-// with the asterisk, so a screen reader announces it.
-
 import { forwardRef, type LabelHTMLAttributes } from 'react';
-
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/cn';
 
 export interface LabelProps extends LabelHTMLAttributes<HTMLLabelElement> {
-  /** Marks the field as required. */
-  isRequired?: boolean;
+  readonly required?: boolean;
+  readonly isRequired?: boolean;
 }
 
-export const Label = forwardRef<HTMLLabelElement, LabelProps>(function Label(
-  { className, isRequired = false, children, ...props },
-  ref
-) {
-  return (
+export const Label = forwardRef<HTMLLabelElement, LabelProps>(
+  ({ className, children, required, isRequired, ...props }, ref) => (
     <label
       ref={ref}
-      className={cn('block text-sm font-medium leading-6 text-foreground', className)}
+      className={cn('mb-2 block text-sm font-semibold text-foreground', className)}
       {...props}
     >
       {children}
-      {isRequired ? (
-        <>
-          <span aria-hidden="true" className="ml-1 text-destructive">
-            *
-          </span>
-          <span className="visually-hidden"> (required)</span>
-        </>
+      {required || isRequired ? (
+        <span className="ml-1 text-destructive" aria-hidden="true">
+          *
+        </span>
       ) : null}
     </label>
-  );
-});
+  )
+);
+
+Label.displayName = 'Label';

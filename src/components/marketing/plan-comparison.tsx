@@ -84,7 +84,9 @@ export function PlanComparison() {
                 <TableCell className="text-sm text-foreground">{row.label}</TableCell>
                 {PLANS.map((plan) => (
                   <TableCell key={plan.key} className="text-center">
-                    <ComparisonValue value={row.values[plan.key]} />
+                    <ComparisonValue
+                      value={(row.values as Record<string, string | boolean | undefined>)[plan.key]}
+                    />
                   </TableCell>
                 ))}
               </TableRow>

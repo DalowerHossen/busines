@@ -97,7 +97,7 @@ plan in the earlier InvoicerSaaS spec)
 
 - Supabase Postgres stores ONLY text/metadata (no binary blobs).
 - All uploaded files (logos, KYC front/back, receipts, attachments, PDFs,
-  QR card images, contract documents, etc.) are stored in Google Drive, not
+  generated document assets, contract documents, etc.) are stored in Google Drive, not
   Supabase Storage.
 - Architecture: a pluggable `StorageProvider` interface in `src/lib/storage/`
   with a Google Drive adapter as the DEFAULT implementation (service-account
@@ -109,7 +109,15 @@ plan in the earlier InvoicerSaaS spec)
 - Required server-only env vars (never NEXT*PUBLIC*): GOOGLE_DRIVE_CLIENT_EMAIL,
   GOOGLE_DRIVE_PRIVATE_KEY, GOOGLE_DRIVE_ROOT_FOLDER_ID.
 - Signed/expiring share links are generated per request for private files
-  (KYC docs, invoices) instead of making files public.
+  (KYC docs, invoices) instead of making files public. The Phase 21 Google
+  Drive adapter uses an HMAC application URL and streams the file through a
+  server-only route after verifying the signature and company ownership;
+  Google Drive service-account credentials are never sent to the browser.
+- A server-only `storage_provider_folders` mapping keeps one validated Drive
+  folder per company/provider. The mapping has forced default-deny RLS and
+  browser-role privileges revoked; only the trusted server client may manage
+  it. Drive file `appProperties` retain the company and category metadata
+  needed for ownership checks before delete or download.
 
 ## 8. E-commerce direct payment collection -- LOCKED (new this pass)
 

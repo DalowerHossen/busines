@@ -98,7 +98,7 @@ export function createRoute<Schema extends z.ZodTypeAny, Body extends Json>(
           kind: 'api_route',
           key,
           limit: options.rateLimit,
-          windowSeconds: options.rateLimitWindowSeconds,
+          windowSeconds: options.rateLimitWindowSeconds ?? 60,
         });
 
         if (!decision.isAllowed) {

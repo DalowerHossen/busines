@@ -1,52 +1,63 @@
-// src/components/ui/switch.tsx
-// An on and off control for settings that take effect immediately.
-
 'use client';
 
-import { forwardRef, type ButtonHTMLAttributes } from 'react';
-
-import { cn } from '@/lib/utils';
+import { forwardRef, useState, type ButtonHTMLAttributes } from 'react';
+import { cn } from '@/lib/cn';
 
 export interface SwitchProps
-  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onChange' | 'type'> {
-  /** Current state. */
-  checked: boolean;
-  /** Called with the new state when the control is pressed. */
-  onCheckedChange: (checked: boolean) => void;
-  /** Accessible name, required when no visible label is attached. */
-  label: string;
+  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'value' | 'onChange'> {
+  readonly checked?: boolean;
+  readonly defaultChecked?: boolean;
+  readonly onCheckedChange?: (checked: boolean) => void;
+  readonly label?: string;
 }
 
-export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(function Switch(
-  { className, checked, onCheckedChange, label, disabled, ...props },
-  ref
-) {
-  return (
-    <button
-      ref={ref}
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      aria-label={label}
-      disabled={disabled}
-      onClick={() => {
-        onCheckedChange(!checked);
-      }}
-      className={cn(
-        'relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-fast',
-        'disabled:cursor-not-allowed disabled:opacity-60',
-        checked ? 'bg-primary' : 'bg-muted',
-        className
-      )}
-      {...props}
-    >
-      <span
-        aria-hidden="true"
+export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
+  (
+    {
+      className,
+      checked,
+      defaultChecked = false,
+      onCheckedChange,
+      label,
+      onClick,
+      type = 'button',
+      ...props
+    },
+    ref
+  ) => {
+    const [internalChecked, setInternalChecked] = useState(defaultChecked);
+    const isControlled = checked !== undefined;
+    const resolvedChecked = isControlled ? checked : internalChecked;
+    return (
+      <button
+        ref={ref}
+        type={type}
+        role="switch"
+        aria-checked={resolvedChecked}
+        aria-label={label}
         className={cn(
-          'inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform duration-fast',
-          checked ? 'translate-x-5' : 'translate-x-1'
+          'relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent bg-muted transition-colors duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+          resolvedChecked && 'bg-primary',
+          className
         )}
-      />
-    </button>
-  );
-});
+        onClick={(event) => {
+          onClick?.(event);
+          if (!event.defaultPrevented) {
+            const next = !resolvedChecked;
+            if (!isControlled) setInternalChecked(next);
+            onCheckedChange?.(next);
+          }
+        }}
+        {...props}
+      >
+        <span
+          className={cn(
+            'pointer-events-none block h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-fast',
+            resolvedChecked ? 'translate-x-5' : 'translate-x-0'
+          )}
+        />
+      </button>
+    );
+  }
+);
+Switch.displayName = 'Switch';

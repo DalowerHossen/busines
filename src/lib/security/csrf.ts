@@ -1,90 +1,63 @@
-// src/lib/security/csrf.ts
-// Cross site request forgery protection for the routes that cannot rely on
-// the same site cookie alone, such as form posts from an embedded payment
-// page. A token is random, signed and short lived.
-
 import 'server-only';
 
-import { randomBytes } from 'node:crypto';
+import { createHmac, timingSafeEqual } from 'node:crypto';
+import { SecurityProviderError, securityInvalidRequest } from './errors';
 
-import { serverEnv } from '@/env/server';
-import { hmacBase64Url, signaturesMatch } from '@/lib/crypto/hashing';
+const TOKEN_TTL_SECONDS = 3_600;
 
-export const CSRF_COOKIE_NAME = 'kd_csrf';
-export const CSRF_HEADER_NAME = 'x-csrf-token';
-
-const TOKEN_LIFETIME_MINUTES = 120;
-
-/**
- * Issues a signed token to place in a cookie and in a hidden form field.
- *
- * @returns The token.
- */
-export function issueCsrfToken(): string {
-  const nonce = randomBytes(18).toString('base64url');
-  const expiresAt = Date.now() + TOKEN_LIFETIME_MINUTES * 60 * 1000;
-  const body = `${nonce}.${expiresAt}`;
-
-  return `${body}.${hmacBase64Url(body, serverEnv.CSRF_SECRET)}`;
+export function createCsrfToken(input: {
+  readonly secret: string;
+  readonly sessionId: string;
+  readonly issuedAtSeconds?: number;
+}): string {
+  if (!input.secret || !input.sessionId) throw securityInvalidRequest();
+  const issuedAt = input.issuedAtSeconds ?? Math.floor(Date.now() / 1_000);
+  if (!Number.isSafeInteger(issuedAt) || issuedAt < 1) throw securityInvalidRequest();
+  const payload = `${input.sessionId}.${issuedAt}`;
+  const signature = createHmac('sha256', input.secret).update(payload, 'utf8').digest('base64url');
+  return `${issuedAt}.${signature}`;
 }
 
-/**
- * Checks that a token is well formed, unexpired and correctly signed.
- *
- * @param token Token submitted with the request.
- * @returns True when the token may be trusted.
- */
-export function isCsrfTokenValid(token: string | null | undefined): boolean {
-  if (!token) {
+export function verifyCsrfToken(input: {
+  readonly token: string;
+  readonly secret: string;
+  readonly sessionId: string;
+  readonly nowSeconds?: number;
+  readonly maxAgeSeconds?: number;
+}): boolean {
+  if (!input.token || !input.secret || !input.sessionId) return false;
+  const [issuedAtValue, signature] = input.token.split('.', 2);
+  const issuedAt = Number(issuedAtValue);
+  if (
+    !signature ||
+    !Number.isSafeInteger(issuedAt) ||
+    issuedAt < 1 ||
+    issuedAt > (input.nowSeconds ?? Math.floor(Date.now() / 1_000))
+  ) {
     return false;
   }
-
-  const parts = token.split('.');
-
-  if (parts.length !== 3) {
-    return false;
-  }
-
-  const [nonce, expiresAt, signature] = parts;
-
-  if (!nonce || !expiresAt || !signature) {
-    return false;
-  }
-
-  const expiry = Number.parseInt(expiresAt, 10);
-
-  if (!Number.isFinite(expiry) || expiry < Date.now()) {
-    return false;
-  }
-
-  const expected = hmacBase64Url(`${nonce}.${expiresAt}`, serverEnv.CSRF_SECRET);
-
-  return signaturesMatch(signature, expected);
+  const nowSeconds = input.nowSeconds ?? Math.floor(Date.now() / 1_000);
+  const maxAgeSeconds = input.maxAgeSeconds ?? TOKEN_TTL_SECONDS;
+  if (nowSeconds - issuedAt > maxAgeSeconds) return false;
+  const payload = `${input.sessionId}.${issuedAt}`;
+  const expected = createHmac('sha256', input.secret).update(payload, 'utf8').digest('base64url');
+  return constantTimeEqual(expected, signature);
 }
 
-/**
- * Checks the token a request carries against the one in its cookie.
- *
- * @param headerToken Token sent in the request header or form body.
- * @param cookieToken Token held in the cookie.
- * @returns True when both are valid and identical.
- */
-export function doubleSubmitMatches(
-  headerToken: string | null | undefined,
-  cookieToken: string | null | undefined
-): boolean {
-  if (!headerToken || !cookieToken) {
-    return false;
+export function assertSameOrigin(origin: string | undefined, applicationOrigin: string): void {
+  if (!origin || !applicationOrigin) throw securityInvalidRequest();
+  try {
+    if (new URL(origin).origin !== new URL(applicationOrigin).origin) {
+      throw securityInvalidRequest();
+    }
+  } catch (error) {
+    if (error instanceof SecurityProviderError) throw error;
+    throw securityInvalidRequest();
   }
-
-  return isCsrfTokenValid(headerToken) && signaturesMatch(headerToken, cookieToken);
 }
 
-/** Cookie settings used whenever the token is written. */
-export const CSRF_COOKIE_OPTIONS = {
-  httpOnly: false,
-  sameSite: 'lax',
-  secure: true,
-  path: '/',
-  maxAge: TOKEN_LIFETIME_MINUTES * 60,
-} as const;
+function constantTimeEqual(left: string, right: string): boolean {
+  const leftBuffer = Buffer.from(left, 'utf8');
+  const rightBuffer = Buffer.from(right, 'utf8');
+  return leftBuffer.length === rightBuffer.length && timingSafeEqual(leftBuffer, rightBuffer);
+}

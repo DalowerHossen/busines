@@ -35,8 +35,10 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
-      - name: npm audit (fail on high or critical)
-        run: npm audit --audit-level=high
+      - name: npm audit all dependencies (fail on moderate or higher)
+        # Audit the complete installed dependency tree, including build and
+        # development tooling used by CI and release workflows.
+        run: npm audit --audit-level=moderate
 
   secret-scan:
     name: Secret leak scan

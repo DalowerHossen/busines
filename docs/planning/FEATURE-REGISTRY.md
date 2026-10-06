@@ -155,7 +155,9 @@ P2.1 Meta Cloud API client | P2.2 WhatsApp template manager
 P2.3 Send invoice via WhatsApp | P2.4 Event-based automation rules
 P2.5 Bulk campaign | P2.6 Delivery/read tracking | P2.7 Inbound WhatsApp webhook
 
-## P3. QR Business Card
+## P3. QR Business Card (SUPERSEDED — excluded from current scope)
+
+Status: SUPERSEDED by the owner on 2026-10-06. These historical requirements are retained for traceability, but no QR business card implementation is planned.
 
 P3.1 QR card builder | P3.2 vCard QR generation | P3.3 Card design customization
 P3.4 Public share URL | P3.5 Online card verification | P3.6 Verified badge
@@ -1016,10 +1018,10 @@ DD2.13 Google Business Profile link | DD2.14 Bing Webmaster verification
 ## DD3. Social Presence & Sharing
 
 DD3.1 Footer/header social links (admin-editable) | DD3.2 Share buttons (FB/X/LinkedIn/WhatsApp/Telegram/copy-link)
-DD3.3 Share-card preview | DD3.4 "Share your QR card" flow
+DD3.3 Share-card preview | DD3.4 "Share your QR card" flow (SUPERSEDED with P3)
 DD3.5 Invoice/estimate WhatsApp share | DD3.6 Referral share kit
 DD3.7 Social proof widget | DD3.8 Open Graph per shared entity
-DD3.9 Social link health check | DD3.10 Share analytics | DD3.11 QR-card social embed
+DD3.9 Social link health check | DD3.10 Share analytics | DD3.11 QR-card social embed (SUPERSEDED with P3)
 
 ## DD4. Social Post Automation (future-ready scaffold)
 

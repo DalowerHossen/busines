@@ -8,6 +8,15 @@ import 'server-only';
 import { randomBytes } from 'node:crypto';
 import { cookies } from 'next/headers';
 
+type SyncCookieStore = {
+  get(name: string): { value: string } | undefined;
+  set(name: string, value: string, options: Record<string, unknown>): void;
+};
+
+function syncCookieStore(): SyncCookieStore {
+  return cookies() as unknown as SyncCookieStore;
+}
+
 import {
   CONSENT_COOKIE_NAME,
   CONSENT_MAX_AGE_SECONDS,
@@ -23,7 +32,7 @@ import {
  * @returns The decision, or null when the visitor has not answered.
  */
 export function readConsentDecision(): ConsentDecision | null {
-  return decodeConsent(cookies().get(CONSENT_COOKIE_NAME)?.value ?? null);
+  return decodeConsent(syncCookieStore().get(CONSENT_COOKIE_NAME)?.value ?? null);
 }
 
 /**
@@ -32,7 +41,7 @@ export function readConsentDecision(): ConsentDecision | null {
  * @returns The token, or null when none has been issued.
  */
 export function readVisitorToken(): string | null {
-  const value = cookies().get(VISITOR_COOKIE_NAME)?.value ?? null;
+  const value = syncCookieStore().get(VISITOR_COOKIE_NAME)?.value ?? null;
 
   return value && value.length >= 16 && value.length <= 128 ? value : null;
 }
@@ -55,7 +64,7 @@ export function createVisitorToken(): string {
  * @returns Nothing.
  */
 export function writeConsentCookies(decision: ConsentDecision, visitorToken: string): void {
-  const store = cookies();
+  const store = syncCookieStore();
   const isSecure = process.env.NODE_ENV === 'production';
 
   store.set(CONSENT_COOKIE_NAME, encodeConsent(decision), {

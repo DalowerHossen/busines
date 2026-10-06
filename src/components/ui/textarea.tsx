@@ -1,31 +1,42 @@
-// src/components/ui/textarea.tsx
-// A multi line field, used for notes, terms and message bodies.
-
 import { forwardRef, type TextareaHTMLAttributes } from 'react';
-
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/cn';
 
 export interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
-  /** True when the field failed validation. */
-  isInvalid?: boolean;
+  readonly error?: string;
+  readonly isInvalid?: boolean;
 }
 
-export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea(
-  { className, isInvalid = false, rows = 4, ...props },
-  ref
-) {
-  return (
-    <textarea
-      ref={ref}
-      rows={rows}
-      aria-invalid={isInvalid || undefined}
-      className={cn(
-        'w-full rounded-md border bg-surface px-3 py-2 text-sm text-foreground transition-colors duration-fast',
-        'placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:bg-surface-muted disabled:opacity-70',
-        isInvalid ? 'border-destructive' : 'border-input',
-        className
-      )}
-      {...props}
-    />
-  );
-});
+export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
+  ({ className, error, isInvalid, id, 'aria-describedby': describedBy, ...props }, ref) => {
+    const invalid = Boolean(error || isInvalid);
+    const errorId = error && id ? `${id}-error` : undefined;
+    const ariaDescribedBy = [describedBy, errorId].filter(Boolean).join(' ') || undefined;
+    return (
+      <>
+        <textarea
+          ref={ref}
+          id={id}
+          className={cn(
+            'flex min-h-28 w-full resize-y rounded-md border border-input bg-background px-3 py-2.5 text-sm text-foreground shadow-xs outline-none transition-[border-color,box-shadow] duration-fast placeholder:text-muted-foreground/70 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 disabled:cursor-not-allowed disabled:bg-muted disabled:opacity-70',
+            invalid && 'border-destructive focus:border-destructive focus:ring-destructive/20',
+            className
+          )}
+          aria-invalid={invalid ? true : undefined}
+          aria-describedby={ariaDescribedBy}
+          {...props}
+        />
+        {error && id ? (
+          <span
+            id={errorId}
+            role="alert"
+            className="mt-1.5 block text-xs font-medium text-destructive"
+          >
+            {error}
+          </span>
+        ) : null}
+      </>
+    );
+  }
+);
+
+Textarea.displayName = 'Textarea';

@@ -1,135 +1,102 @@
-// src/middleware.ts
-// Runs before every page and API request: it turns away machines, refreshes
-// the Supabase session, applies the security headers and keeps signed out
-// visitors away from the areas that need an account.
+import { NextResponse, type NextRequest } from 'next/server';
+import { refreshSupabaseSession } from '@/lib/supabase/middleware';
+import { assessBotRequest, routeClassForPath } from '@/lib/security/bot-detection';
+import { createSecurityHeaders, createSecurityNonce } from '@/lib/security/headers';
+import type { SecurityRequestSnapshot } from '@/lib/security/types';
 
-import { type NextRequest, NextResponse } from 'next/server';
-
-import { ROUTES } from '@/config/app';
-import { judgePublicRequest, judgeSensitiveRequest } from '@/lib/security/bot-defence';
-import { buildSecurityHeaders } from '@/lib/security/headers';
-import { refreshSession } from '@/lib/supabase/middleware';
-
-/** Areas that always need an account. */
-const PROTECTED_PREFIXES = [
+const AUTHENTICATED_PREFIXES = [
   '/dashboard',
-  '/admin',
-  '/reseller',
-  '/accountant',
-  '/affiliate',
-  '/onboarding',
+  '/clients',
+  '/invoices',
+  '/estimates',
+  '/payments',
+  '/expenses',
+  '/accounting',
+  '/products',
+  '/inventory',
+  '/reports',
   '/settings',
-];
-
-/** Pages that a signed in account should not see again. */
-const AUTH_PAGES = ['/login', '/register', '/forgot-password'];
-
-/** Pages reached with a signed client link, which must never be indexed. */
-const TOKENISED_PREFIXES = ['/d/', '/sign/', '/pay/'];
-
-/**
- * Areas a machine has no business reading: signed client links, the money
- * pages behind them, and the console of the platform itself.
- */
-const SENSITIVE_PREFIXES = [
-  '/d/',
-  '/sign/',
-  '/pay/',
-  '/dashboard',
+  '/team',
   '/admin',
   '/reseller',
-  '/accountant',
   '/affiliate',
-  '/api/portal',
-  '/api/files',
+  '/accountant',
 ];
 
-/**
- * Builds the refusal sent to a machine. It says nothing about what is
- * behind the address, because a refusal that explains itself is a hint.
- *
- * @returns The response to send instead of the page.
- */
-function refuseMachine(): NextResponse {
-  const response = new NextResponse('Not available.', {
-    status: 403,
-    headers: { 'content-type': 'text/plain; charset=utf-8' },
-  });
-
-  for (const [header, value] of Object.entries(buildSecurityHeaders({ isTokenisedPage: true }))) {
-    response.headers.set(header, value);
-  }
-
-  return response;
-}
-
-/**
- * Reports whether a path starts with any of the given prefixes.
- *
- * @param pathname Path of the request.
- * @param prefixes Prefixes to test.
- * @returns True when one of them matches.
- */
-function matchesPrefix(pathname: string, prefixes: readonly string[]): boolean {
-  return prefixes.some((prefix) => pathname === prefix || pathname.startsWith(prefix));
-}
-
-/**
- * Handles an incoming request before it reaches a page or a route.
- *
- * @param request Incoming request.
- * @returns The response to continue with.
- */
 export async function middleware(request: NextRequest): Promise<NextResponse> {
-  const { pathname, search } = request.nextUrl;
-  const userAgent = request.headers.get('user-agent');
+  const nonce = createSecurityNonce();
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-nonce', nonce);
+  const routeClass = routeClassForPath(request.nextUrl.pathname);
+  const securityRequest: SecurityRequestSnapshot = {
+    pathname: request.nextUrl.pathname,
+    method: request.method,
+    headers: headersToRecord(request.headers),
+    ipAddress: request.headers.get('x-forwarded-for')?.split(',')[0]?.trim(),
+  };
+  const bot = assessBotRequest(securityRequest, routeClass);
 
-  // Judged before the session is even refreshed, so a crawler costs this
-  // application one string comparison rather than a database round trip.
-  const verdict = matchesPrefix(pathname, SENSITIVE_PREFIXES)
-    ? judgeSensitiveRequest(userAgent)
-    : judgePublicRequest(userAgent);
-
-  if (verdict.isRefused) {
-    return refuseMachine();
+  if (bot.action === 'block') {
+    return withSecurityHeaders(
+      NextResponse.json({ error: 'Request blocked.' }, { status: 403 }),
+      nonce,
+      routeClass
+    );
   }
 
-  const { response, userId } = await refreshSession(request);
-
-  const isTokenisedPage = matchesPrefix(pathname, TOKENISED_PREFIXES);
-
-  for (const [header, value] of Object.entries(buildSecurityHeaders({ isTokenisedPage }))) {
-    response.headers.set(header, value);
+  const { response: sessionResponse, user } = await refreshSupabaseSession(request, requestHeaders);
+  let response = sessionResponse;
+  if (!user && isAuthenticatedPath(request.nextUrl.pathname)) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = '/login';
+    loginUrl.search = `?next=${encodeURIComponent(request.nextUrl.pathname + request.nextUrl.search)}`;
+    response = copyResponseCookies(sessionResponse, NextResponse.redirect(loginUrl));
   }
 
-  if (!userId && matchesPrefix(pathname, PROTECTED_PREFIXES)) {
-    const signIn = request.nextUrl.clone();
-    signIn.pathname = ROUTES.login;
-    signIn.search = `?next=${encodeURIComponent(`${pathname}${search}`)}`;
+  if (bot.action === 'challenge') response.headers.set('X-Security-Challenge', 'turnstile');
+  return withSecurityHeaders(response, nonce, routeClass);
+}
 
-    const redirect = NextResponse.redirect(signIn);
-
-    for (const [header, value] of Object.entries(buildSecurityHeaders())) {
-      redirect.headers.set(header, value);
-    }
-
-    return redirect;
+function withSecurityHeaders(
+  response: NextResponse,
+  nonce: string,
+  routeClass: ReturnType<typeof routeClassForPath>
+): NextResponse {
+  const securityHeaders = createSecurityHeaders({
+    nonce,
+    isDevelopment: process.env.NODE_ENV !== 'production',
+  });
+  for (const [name, value] of Object.entries(securityHeaders)) {
+    response.headers.set(name, value);
   }
-
-  if (userId && matchesPrefix(pathname, AUTH_PAGES)) {
-    const dashboard = request.nextUrl.clone();
-    dashboard.pathname = ROUTES.dashboard;
-    dashboard.search = '';
-
-    return NextResponse.redirect(dashboard);
+  if (routeClass === 'auth' || routeClass === 'sensitive') {
+    response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
+    response.headers.set('Referrer-Policy', 'no-referrer');
   }
-
   return response;
+}
+
+function copyResponseCookies(source: NextResponse, target: NextResponse): NextResponse {
+  for (const cookie of source.cookies.getAll()) {
+    target.cookies.set(cookie);
+  }
+  return target;
+}
+
+function isAuthenticatedPath(pathname: string): boolean {
+  return AUTHENTICATED_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  );
+}
+
+function headersToRecord(headers: Headers): Readonly<Record<string, string | undefined>> {
+  const record: Record<string, string> = {};
+  headers.forEach((value, key) => {
+    record[key] = value;
+  });
+  return record;
 }
 
 export const config = {
-  matcher: [
-    // Everything except static assets and the files Next.js serves itself.
-    '/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:png|jpg|jpeg|gif|webp|avif|svg|ico|woff|woff2)$).*)',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)'],
 };

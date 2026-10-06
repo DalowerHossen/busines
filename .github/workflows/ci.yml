@@ -68,14 +68,31 @@ jobs:
         run: npm ci --no-audit --no-fund
 
       - name: Build production bundle
-        run: npm run build
+        run: |
+          set -o pipefail
+          npm run build 2>&1 | tee build.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            message=$(tail -c 6000 build.log | tr '\n' ' ' | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')
+            echo "::error file=.github/workflows/ci.yml,line=58::$message"
+          fi
+          exit "$status"
         env:
           NEXT_TELEMETRY_DISABLED: '1'
+          NODE_OPTIONS: '--max-old-space-size=4096'
           # Build-time placeholder values only. Real secrets are injected by
           # the hosting provider (Netlify, Vercel, Docker) at deploy time.
           NEXT_PUBLIC_APP_URL: https://kdsolutionit.netlify.app
           NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+          NEXT_PUBLIC_APP_NAME: KD SOLUTION IT
+          NEXT_PUBLIC_SHORT_LINK_URL: https://kdsolutionit.netlify.app
+          APP_ENV: test
+          SUPABASE_SERVICE_ROLE_KEY: placeholder-service-role-key
+          ENCRYPTION_KEY: '01234567890123456789012345678901'
+          LINK_SIGNING_SECRET: '01234567890123456789012345678901'
+          CSRF_SECRET: '01234567890123456789012345678901'
+          CRON_SECRET: '01234567890123456789012345678901'
 
   test:
     name: Unit and integration tests

@@ -11,6 +11,7 @@ export interface CountryDefinition {
   readonly name: string;
   readonly dialCode: string;
   readonly defaultCurrencyCode: string;
+  readonly currency: string;
 }
 
 function country(
@@ -19,7 +20,13 @@ function country(
   dialCode: string,
   defaultCurrencyCode: string
 ): CountryDefinition {
-  return { code: code as CountryCode, name, dialCode, defaultCurrencyCode };
+  return {
+    code: code as CountryCode,
+    name,
+    dialCode,
+    defaultCurrencyCode,
+    currency: defaultCurrencyCode,
+  };
 }
 
 /**
@@ -83,4 +90,9 @@ const COUNTRY_BY_CODE = new Map<string, CountryDefinition>(
  */
 export function getCountryDefinition(code: CountryCode): CountryDefinition | undefined {
   return COUNTRY_BY_CODE.get(code);
+}
+
+export const COUNTRIES = SUPPORTED_COUNTRIES;
+export function findCountry(code: string): CountryDefinition | undefined {
+  return COUNTRY_BY_CODE.get(code.toUpperCase());
 }

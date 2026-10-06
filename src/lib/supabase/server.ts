@@ -1,50 +1,70 @@
 // src/lib/supabase/server.ts
-// The Supabase client used in server components, server actions and route
-// handlers. It reads the session from cookies and respects row level security.
-
+// Request-scoped Server Component/Route Handler client. Auth cookies are
+// read and refreshed through @supabase/ssr; browser code cannot import this
+// module because it is protected by server-only.
 import 'server-only';
 
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
-
-import { clientEnv } from '@/env/client';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/database';
 
 export type ServerSupabaseClient = SupabaseClient<Database, 'public'>;
+import { serverEnv } from '@/lib/env/env.server';
 
-/**
- * Creates a request scoped Supabase client.
- *
- * Writing cookies is only possible in a server action or a route handler; in a
- * server component the write is ignored, which is what Supabase expects.
- *
- * @returns A client bound to the current request.
- */
-export function createServerSupabaseClient(): ServerSupabaseClient {
-  const cookieStore = cookies();
-
-  return createServerClient<Database, 'public'>(
-    clientEnv.NEXT_PUBLIC_SUPABASE_URL,
-    clientEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+export async function createSupabaseServerClient(): Promise<SupabaseClient> {
+  const cookieStore = await cookies();
+  return createServerClient(
+    serverEnv.NEXT_PUBLIC_SUPABASE_URL,
+    serverEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     {
       cookies: {
-        get(name: string): string | undefined {
-          return cookieStore.get(name)?.value;
+        getAll() {
+          return cookieStore.getAll();
         },
-        set(name: string, value: string, options: CookieOptions): void {
+        setAll(cookiesToSet) {
           try {
-            cookieStore.set({ name, value, ...options });
+            for (const { name, value, options } of cookiesToSet) {
+              cookieStore.set({ name, value, ...options });
+            }
           } catch {
-            // A server component cannot write cookies; the middleware refreshes
-            // the session instead.
+            // Server Components cannot mutate cookies. Middleware and Route
+            // Handlers perform the actual refresh on the next response.
           }
         },
-        remove(name: string, options: CookieOptions): void {
+      },
+    }
+  );
+}
+
+export async function getAuthenticatedServerUser() {
+  const client = await createSupabaseServerClient();
+  const {
+    data: { user },
+    error,
+  } = await client.auth.getUser();
+  if (error) return { user: null, error };
+  return { user, error: null };
+}
+
+/** Compatibility client for legacy synchronous server call sites. */
+export function createServerSupabaseClient(): SupabaseClient {
+  const cookieStore = cookies() as unknown as {
+    getAll: () => Array<{ name: string; value: string; options?: CookieOptions }>;
+    set: (cookie: { name: string; value: string } & CookieOptions) => void;
+  };
+  return createServerClient(
+    serverEnv.NEXT_PUBLIC_SUPABASE_URL,
+    serverEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    {
+      cookies: {
+        getAll: () => cookieStore.getAll(),
+        setAll(cookiesToSet) {
           try {
-            cookieStore.set({ name, value: '', ...options, maxAge: 0 });
+            for (const { name, value, options } of cookiesToSet)
+              cookieStore.set({ name, value, ...options });
           } catch {
-            // Same as above: the middleware owns cookie removal.
+            // Server Components cannot mutate cookies; middleware refreshes the session.
           }
         },
       },

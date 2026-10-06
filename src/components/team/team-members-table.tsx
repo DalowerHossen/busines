@@ -67,7 +67,10 @@ function describeAccess(permissions: PermissionMap): string {
 
   const labels = resources
     .slice(0, 3)
-    .map((resource) => RESOURCE_DEFINITIONS[resource as keyof typeof RESOURCE_DEFINITIONS].label);
+    .map(
+      (resource) =>
+        RESOURCE_DEFINITIONS[resource as keyof typeof RESOURCE_DEFINITIONS]?.label ?? resource
+    );
 
   return resources.length > 3 ? `${labels.join(', ')} and more` : labels.join(', ');
 }

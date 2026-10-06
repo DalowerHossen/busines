@@ -17,6 +17,7 @@ export interface NavItem {
   readonly iconName: string;
   /** Roles allowed to see this item. `client` access never appears here - clients never see app navigation. */
   readonly allowedRoles: readonly AccountRole[];
+  readonly permission?: string;
   readonly children?: readonly NavItem[];
 }
 
@@ -195,3 +196,34 @@ export function getNavItemsForRole(role: AccountRole): readonly NavItem[] {
       : item
   );
 }
+
+export type NavIconName = string;
+export interface NavSectionItem {
+  readonly key: string;
+  readonly label: string;
+  readonly href: string;
+  readonly icon: NavIconName;
+  readonly roles: readonly AccountRole[];
+  readonly permission?: string;
+  readonly isBuilt?: boolean;
+  readonly isExact?: boolean;
+}
+export interface NavSection {
+  readonly key: string;
+  readonly label: string;
+  readonly items: readonly NavSectionItem[];
+}
+export const NAV_SECTIONS: readonly NavSection[] = [
+  {
+    key: 'main',
+    label: 'Main',
+    items: NAV_MAP.map((item) => ({
+      key: item.key,
+      label: item.label,
+      href: item.href,
+      icon: item.iconName,
+      roles: item.allowedRoles,
+      isBuilt: true,
+    })),
+  },
+];

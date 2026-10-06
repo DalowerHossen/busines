@@ -1,73 +1,33 @@
-// src/app/layout.tsx
-// The shell every page is rendered inside: the document language, the type
-// faces, the colour scheme and the region that holds notifications.
-
-import type { Metadata, Viewport } from 'next';
-import type { ReactNode } from 'react';
-
-import '@/app/globals.css';
-
-import { JsonLd } from '@/components/seo/json-ld';
-import { Toaster } from '@/components/ui/toaster';
-import { BRAND } from '@/config/brand';
-import { organisationJsonLd, siteUrl } from '@/lib/seo/metadata';
+import type { Metadata } from 'next';
+import './globals.css';
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl()),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'https://kdsolutionit.com'),
   title: {
-    default: `${BRAND.name} - ${BRAND.tagline}`,
-    template: `%s | ${BRAND.name}`,
+    default: 'KD SOLUTION IT',
+    template: '%s | KD SOLUTION IT',
   },
-  description: BRAND.description,
-  applicationName: BRAND.name,
-  authors: [{ name: BRAND.legalName }],
-  creator: BRAND.legalName,
-  publisher: BRAND.legalName,
-  formatDetection: { email: false, address: false, telephone: false },
-  referrer: 'no-referrer',
+  description: 'Smart Billing for Modern Business',
   openGraph: {
     type: 'website',
-    siteName: BRAND.name,
-    title: `${BRAND.name} - ${BRAND.tagline}`,
-    description: BRAND.description,
-    url: siteUrl(),
+    siteName: 'KD SOLUTION IT',
+    title: 'KD SOLUTION IT — Smart Billing for Modern Business',
+    description:
+      'Invoices, payments, clients, and the work around them in one clear operating rhythm.',
   },
   twitter: {
-    card: 'summary_large_image',
-    title: `${BRAND.name} - ${BRAND.tagline}`,
-    description: BRAND.description,
+    card: 'summary',
+    title: 'KD SOLUTION IT — Smart Billing for Modern Business',
+    description: 'A clearer operating rhythm for modern business billing.',
   },
 };
 
-export const viewport: Viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  viewportFit: 'cover',
-  themeColor: BRAND.colors.primary,
-};
-
-export interface RootLayoutProps {
-  /** The page being rendered. */
-  children: ReactNode;
-}
-
-/**
- * Renders the document shell.
- *
- * @param props The page being rendered.
- * @returns The rendered document.
- */
-export default function RootLayout({ children }: RootLayoutProps) {
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>): React.ReactNode {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen bg-background font-sans text-foreground antialiased">
-        <a href="#main-content" className="skip-link">
-          Skip to main content
-        </a>
-        {children}
-        <Toaster />
-        <JsonLd data={organisationJsonLd()} />
-      </body>
+    <html lang="en">
+      <body>{children}</body>
     </html>
   );
 }

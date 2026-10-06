@@ -41,7 +41,7 @@ function toPartyLines(party: InvoiceParty, fallbackName: string): string[] {
     party.addressLine1,
     party.addressLine2,
     [party.city, party.stateRegion, party.postalCode].filter(Boolean).join(', '),
-    country === null ? party.countryCode : country.name,
+    country?.name ?? party.countryCode,
     party.taxId === null ? null : `Tax identification ${party.taxId}`,
   ].filter((line): line is string => typeof line === 'string' && line.trim().length > 0);
 }

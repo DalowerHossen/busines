@@ -1,55 +1,47 @@
 // src/lib/supabase/middleware.ts
-// Session refresh for the edge middleware. Supabase rotates its tokens on the
-// response, so the cookies written here must travel back to the browser.
+// Edge-compatible session refresh boundary. Middleware calls getUser() so
+// expired access tokens are validated by Supabase Auth instead of trusting a
+// client-readable session payload.
+import { createServerClient } from '@supabase/ssr';
+import { NextResponse, type NextRequest } from 'next/server';
+import type { User } from '@supabase/supabase-js';
 
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { type NextRequest, NextResponse } from 'next/server';
-
-import { clientEnv } from '@/env/client';
-import type { Database } from '@/types/database';
-
-export interface SessionCheck {
-  response: NextResponse;
-  userId: string | null;
-  email: string | null;
+export interface SupabaseMiddlewareResult {
+  readonly response: NextResponse;
+  readonly user: User | null;
 }
 
-/**
- * Refreshes the Supabase session for an incoming request.
- *
- * @param request The request the middleware received.
- * @returns The response to continue with and who is signed in.
- */
-export async function refreshSession(request: NextRequest): Promise<SessionCheck> {
-  let response = NextResponse.next({ request: { headers: request.headers } });
+export async function refreshSupabaseSession(
+  request: NextRequest,
+  requestHeaders: Headers = new Headers(request.headers)
+): Promise<SupabaseMiddlewareResult> {
+  let response = NextResponse.next({ request: { headers: requestHeaders } });
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return { response, user: null };
+  }
 
-  const supabase = createServerClient<Database, 'public'>(
-    clientEnv.NEXT_PUBLIC_SUPABASE_URL,
-    clientEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        get(name: string): string | undefined {
-          return request.cookies.get(name)?.value;
-        },
-        set(name: string, value: string, options: CookieOptions): void {
-          request.cookies.set({ name, value, ...options });
-          response = NextResponse.next({ request: { headers: request.headers } });
-          response.cookies.set({ name, value, ...options });
-        },
-        remove(name: string, options: CookieOptions): void {
-          request.cookies.set({ name, value: '', ...options });
-          response = NextResponse.next({ request: { headers: request.headers } });
-          response.cookies.set({ name, value: '', ...options, maxAge: 0 });
-        },
+  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
       },
-    }
-  );
+      setAll(cookiesToSet) {
+        for (const { name, value, options } of cookiesToSet) {
+          request.cookies.set(name, value);
+          response.cookies.set(name, value, options);
+        }
+        response = NextResponse.next({ request: { headers: requestHeaders } });
+        for (const { name, value, options } of cookiesToSet) {
+          response.cookies.set(name, value, options);
+        }
+      },
+    },
+  });
 
-  const { data } = await supabase.auth.getUser();
-
-  return {
-    response,
-    userId: data.user?.id ?? null,
-    email: data.user?.email ?? null,
-  };
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  return { response, user };
 }

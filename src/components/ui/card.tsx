@@ -1,100 +1,79 @@
-// src/components/ui/card.tsx
-// The panel that holds a section of a page.
+import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
+import { cn } from '@/lib/cn';
 
-import { type HTMLAttributes, type ReactNode } from 'react';
-
-import { cn } from '@/lib/utils';
-
-export type CardProps = HTMLAttributes<HTMLDivElement>;
-
-/**
- * Renders a panel with a border and a soft shadow.
- *
- * @param props Standard division attributes.
- * @returns The rendered card.
- */
-export function Card({ className, ...props }: CardProps) {
-  return (
-    <div
-      className={cn(
-        'rounded-lg border border-border bg-card text-card-foreground shadow-xs',
-        className
-      )}
-      {...props}
-    />
-  );
+export interface CardProps extends HTMLAttributes<HTMLDivElement> {
+  readonly actions?: ReactNode;
 }
 
-export interface CardHeaderProps extends HTMLAttributes<HTMLDivElement> {
-  /** Buttons or links shown on the right of the header. */
-  actions?: ReactNode;
-}
-
-/**
- * Renders the top band of a card, with optional actions on the right.
- *
- * @param props Header content and actions.
- * @returns The rendered header.
- */
-export function CardHeader({ className, children, actions, ...props }: CardHeaderProps) {
-  return (
+export const Card = forwardRef<HTMLDivElement, CardProps>(
+  ({ className, actions, children, ...props }, ref) => (
     <div
+      ref={ref}
       className={cn(
-        'flex flex-col gap-3 border-b border-border px-5 py-4 sm:flex-row sm:items-center sm:justify-between',
+        'rounded-xl border border-border bg-card text-card-foreground shadow-sm',
         className
       )}
       {...props}
     >
-      <div className="space-y-1">{children}</div>
-      {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
+      {actions ? <div className="flex justify-end p-4 pb-0">{actions}</div> : null}
+      {children}
     </div>
-  );
+  )
+);
+Card.displayName = 'Card';
+
+export interface CardHeaderProps extends HTMLAttributes<HTMLDivElement> {
+  readonly actions?: ReactNode;
 }
 
-/**
- * Renders the title inside a card header.
- *
- * @param props Heading attributes.
- * @returns The rendered title.
- */
-export function CardTitle({ className, ...props }: HTMLAttributes<HTMLHeadingElement>) {
-  return <h2 className={cn('text-base font-semibold text-foreground', className)} {...props} />;
-}
+export const CardHeader = forwardRef<HTMLDivElement, CardHeaderProps>(
+  ({ className, actions, children, ...props }, ref) => (
+    <div ref={ref} className={cn('flex flex-col gap-1.5 p-5 sm:p-6', className)} {...props}>
+      <div className={actions ? 'flex items-start justify-between gap-4' : undefined}>
+        <div className="min-w-0 flex-1">{children}</div>
+        {actions}
+      </div>
+    </div>
+  )
+);
+CardHeader.displayName = 'CardHeader';
 
-/**
- * Renders the supporting line under a card title.
- *
- * @param props Paragraph attributes.
- * @returns The rendered description.
- */
-export function CardDescription({ className, ...props }: HTMLAttributes<HTMLParagraphElement>) {
-  return <p className={cn('text-sm text-muted-foreground', className)} {...props} />;
-}
-
-/**
- * Renders the body of a card.
- *
- * @param props Standard division attributes.
- * @returns The rendered body.
- */
-export function CardContent({ className, ...props }: CardProps) {
-  return <div className={cn('px-5 py-4', className)} {...props} />;
-}
-
-/**
- * Renders the footer of a card, usually holding the primary action.
- *
- * @param props Standard division attributes.
- * @returns The rendered footer.
- */
-export function CardFooter({ className, ...props }: CardProps) {
-  return (
-    <div
+export const CardTitle = forwardRef<HTMLHeadingElement, HTMLAttributes<HTMLHeadingElement>>(
+  ({ className, ...props }, ref) => (
+    <h3
+      ref={ref}
       className={cn(
-        'flex flex-col gap-2 border-t border-border px-5 py-4 sm:flex-row sm:items-center sm:justify-end',
+        'font-heading text-lg font-semibold tracking-tight text-card-foreground',
         className
       )}
       {...props}
     />
-  );
-}
+  )
+);
+CardTitle.displayName = 'CardTitle';
+
+export const CardDescription = forwardRef<
+  HTMLParagraphElement,
+  HTMLAttributes<HTMLParagraphElement>
+>(({ className, ...props }, ref) => (
+  <p ref={ref} className={cn('text-sm leading-6 text-muted-foreground', className)} {...props} />
+));
+CardDescription.displayName = 'CardDescription';
+
+export const CardContent = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <div ref={ref} className={cn('px-5 pb-5 sm:px-6 sm:pb-6', className)} {...props} />
+  )
+);
+CardContent.displayName = 'CardContent';
+
+export const CardFooter = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn('flex items-center px-5 pb-5 sm:px-6 sm:pb-6', className)}
+      {...props}
+    />
+  )
+);
+CardFooter.displayName = 'CardFooter';
