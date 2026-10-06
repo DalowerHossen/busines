@@ -1,4 +1,5 @@
 <!-- REQUIREMENTS_BN.md -->
+
 # KD SOLUTION IT — বাংলায় পূর্ণ চাহিদার তালিকা
 
 **বাজার:** এশিয়া-কেন্দ্রিক সেবা। প্ল্যাটফর্মের ডিফল্ট মুদ্রা USD।
@@ -152,12 +153,12 @@
 97. Sales report।
 98. Expense report।
 99. Client report।
-100. Tax summary report।
-101. VAT in/out ও net payable।
-102. সব report-এ TOTAL row।
-103. Period/date filter।
-104. প্রতিটি report CSV export।
-105. প্রতিটি report PDF export।
+100.  Tax summary report।
+101.  VAT in/out ও net payable।
+102.  সব report-এ TOTAL row।
+103.  Period/date filter।
+104.  প্রতিটি report CSV export।
+105.  প্রতিটি report PDF export।
 
 # L. টিম ও KYC (১০৬–১১৩)
 
@@ -242,7 +243,9 @@
 169. Delivery/read tracking।
 170. WhatsApp inbound webhook।
 
-# P3. QR business card (১৭১–১৭৭)
+# P3. QR business card (১৭১–১৭৭) — বর্তমান scope থেকে বাদ
+
+**অবস্থা:** Owner-এর সিদ্ধান্ত অনুযায়ী ২০২৬-১০-০৬ তারিখে এই module বাতিল করা হয়েছে। তালিকাটি কেবল historical reference হিসেবে রাখা হলো; implementation করা হবে না।
 
 171. QR card builder।
 172. vCard QR generation।
@@ -867,6 +870,7 @@
 # W. Design ও navigation standard (৬১০–৬৪৫)
 
 ## W1. Layout architecture (৬১০–৬২০)
+
 610. Fixed left app sidebar।
 611. Sidebar 264px, collapsed 72px।
 612. Sticky 64px topbar।
@@ -880,6 +884,7 @@
 620. 12-column grid, gap 24।
 
 ## W2. Navigation integrity (৬২১–৬৩০)
+
 621. এক central nav-map file।
 622. সব route nav-map-এ register।
 623. Nav-map থেকে auto breadcrumb।
@@ -892,6 +897,7 @@
 630. Settings/detail tab-navigation pattern।
 
 ## W3. সম্পূর্ণ page state (৬৩১–৬৩৮)
+
 631. সব page-এ loading skeleton।
 632. Error ও retry।
 633. Empty state ও CTA।
@@ -902,6 +908,7 @@
 638. সব form-এ inline validation ও invalid হলে disabled submit।
 
 ## W4. সম্পূর্ণ English content (৬৩৯–৬৪৫)
+
 639. বাস্তব copy, filler text নয়।
 640. সব button/label/tooltip লেখা।
 641. সব error/success message লেখা।
@@ -1632,7 +1639,7 @@
 - Telegram share থাকবে।
 - Copy-link share থাকবে।
 - Share-card preview থাকবে।
-- Share your QR card flow থাকবে।
+- Share your QR card flow থাকবে। (Owner decision অনুযায়ী QR business card module বর্তমান scope থেকে বাদ।)
 - Invoice/estimate WhatsApp share, referral share kit ও social-proof widget থাকবে।
 
 ## DD4. Social-post automation — ১৫টি requirement
@@ -1849,7 +1856,6 @@
 - Repeat client reward থাকবে।
 - Review request consent-aware ও auditable হবে।
 
-
 # Q. Deploy ও operations
 
 Extended feature-set-এর পরে নিচের deploy/operations requirements থাকবে:
@@ -1866,4 +1872,4 @@ Extended feature-set-এর পরে নিচের deploy/operations requirem
 
 # Coverage ও integrity note
 
-এই বাংলা তালিকায় core platform, design, public site, authentication, onboarding, CRM, invoice, estimate, payment, report, KYC, setting, super admin, email, security, WhatsApp, QR card, ecommerce, inventory, supplier, accounting, wallet/MoR, affiliate, public API, tokenized client access, blog/status, tenant branding, American/Amazon-style invoice, 2FA/OAuth/GDPR, testing, hosting, trial, realtime, billing lifecycle, tax, navigation, gateway, local payment, subscription, support, marketing, legal, engineering, consent evidence, mobile, secret/security/privacy, database, PDF, entitlement, storage/media, first-run infrastructure, SEO/social, reseller, accountant, marketplace, integrations, multi-channel, bank feed, OCR, contract, BNPL এবং loyalty—সব প্রদত্ত capability অন্তর্ভুক্ত আছে।
+এই বাংলা তালিকায় core platform, design, public site, authentication, onboarding, CRM, invoice, estimate, payment, report, KYC, setting, super admin, email, security, WhatsApp, ecommerce, inventory, supplier, accounting, wallet/MoR, affiliate, public API, tokenized client access, blog/status, tenant branding, American/Amazon-style invoice, 2FA/OAuth/GDPR, testing, hosting, trial, realtime, billing lifecycle, tax, navigation, gateway, local payment, subscription, support, marketing, legal, engineering, consent evidence, mobile, secret/security/privacy, database, PDF, entitlement, storage/media, first-run infrastructure, SEO/social, reseller, accountant, marketplace, integrations, multi-channel, bank feed, OCR, contract, BNPL এবং loyalty—সব প্রদত্ত capability অন্তর্ভুক্ত আছে।

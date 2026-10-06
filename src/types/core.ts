@@ -32,7 +32,7 @@ export type CountryCode = string & { readonly __brand: 'CountryCode' };
  * A monetary amount stored and transmitted as a decimal-safe string (never
  * a floating point `number`) to avoid rounding errors. Arithmetic on this
  * value must always go through the `decimal.js`-based money utilities
- * added in a later phase, never native `+`/`-`/`*`/`/`.
+ * in `src/lib/core/money.ts`, never native `+`/`-`/`*`/`/`.
  */
 export type MoneyAmount = string & { readonly __brand: 'MoneyAmount' };
 

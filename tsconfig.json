@@ -40,5 +40,5 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", ".next", "out", "build", "dist", "coverage"]
+  "exclude": ["node_modules", ".next", "out", "build", "dist", "coverage", "supabase/functions"]
 }

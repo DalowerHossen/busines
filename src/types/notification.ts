@@ -1,8 +1,7 @@
 // src/types/notification.ts
 // In-app notification center domain types (R2 in
-// docs/planning/FEATURE-REGISTRY.md). Delivery-channel adapters
-// (WhatsApp/SMS/Telegram/Viber/email) are implemented in a later phase;
-// this file only models the in-app notification record and consent.
+// docs/planning/FEATURE-REGISTRY.md). Delivery-channel adapters live in
+// src/lib/communication; this file models the in-app record and consent.
 import type { ISODateString, TenantScopedEntity, UUID } from '@/types/core';
 
 /**

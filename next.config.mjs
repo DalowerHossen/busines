@@ -102,10 +102,6 @@ const nextConfig = {
       bodySizeLimit: '2mb',
     },
     optimizePackageImports: ['lucide-react', 'date-fns'],
-    // Enables src/instrumentation.ts so required environment variables are
-    // validated once at server startup instead of failing deep inside a
-    // request handler. Stable without this flag starting in Next.js 15.
-    instrumentationHook: true,
   },
 
   async headers() {

@@ -2,7 +2,7 @@
 
 # Delivery Phase Plan -- KD SOLUTION IT (PayProject)
 
-This is a living plan. Phase numbers are stable once a phase has started
+This is a living plan. The owner excluded the QR business card module (P3) from the current scope on 2026-10-06; invoice QR codes remain in scope. On 2026-10-06, the owner requested a Merchant of Record tax/compliance extension immediately after Phase 27; it is recorded as completed Phase 28 in the tracker. The owner then requested the communications adapter extension before the planned email phase; it is recorded as Phase 28B. Phase 29 email, Phase 30 ecommerce connectors, Phase 31 security protection, Phase 32 KYC/MoR/wallet/evidence contracts, Phase 33 accounting/reconciliation/OCR contracts, Phase 34 core platform contracts, Phase 35 stores/providers plus automatic card-tier fees, Phase 36 validators part 1, Phase 37 validators part 2, Phase 38 UI primitives part 1, Phase 39 UI primitives part 2, Phase 40 role-aware layouts, Phase 41 shared components, Phase 42 auth pages, and Phase 43 onboarding/company provider, Phase 44 public marketing pages part 1, and Phase 45 public pages part 2 are now complete; Phase 17 RLS part 1 and Phase 18 RLS part 2 plus isolation tests are also complete for the current schema. Phases 19, 20, 21, 22, 23, 24, and 46 are complete; Phase 47 is the next unresolved delivery row because Phases 25–45 are already complete in the tracker. Phase 24 provides the decimal-safe currency, invoice-calculation, number-to-words, and historical FX boundary; Phase 46 provides the dashboard, tenant-scoped global search, command palette, and notification center. Provider-specific FX fetching remains an official-provider integration concern and is not guessed here. Phase numbers are stable once a phase has started
 (check PROGRESS-TRACKER.md), but an unstarted phase MAY be merged with its
 neighbor or split further during execution if that produces cleaner,
 still-complete delivery batches -- the owner does not need to approve a
@@ -32,7 +32,7 @@ the authoritative current count). Estimated total files: ~1700-1900.
 10. Migrations: expenses, income, tax rates, chart of accounts, journal entries, recurring expenses, bills, bank-feed tables
 11. Migrations: products, categories, bundles, warehouses, stock movements/transfers, suppliers, purchase orders
 12. Migrations: WhatsApp, SMS/Telegram/Viber channel tables, email templates, notifications
-13. Migrations: QR cards + analytics, e-commerce connections/orders/webhook log, direct-checkout API keys (FF1)
+13. Migrations: e-commerce connections/orders/webhook log, direct-checkout API keys (FF1)
 14. Migrations: KYC, virtual wallet, wallet transactions, payout requests, payment holds, platform fees, MoR agreements
 15. Migrations: affiliate, reseller + sub-tenant linkage, accountant_company_access, coupons, audit logs
 16. Migrations: CMS, blog, FAQ, branding, announcement bar, status/incidents, API keys, outgoing webhooks, support tickets, GDPR requests, backups, exchange rates, time-tracking/projects, contracts/e-sign, BNPL, loyalty
@@ -48,7 +48,7 @@ the authoritative current count). Estimated total files: ~1700-1900.
 20. Supabase clients (browser/server/admin/middleware/realtime), encryption (AES-256 + key-vault), rate limiter, CSRF, audit logger
 21. Google Drive storage adapter (service account, folder-per-company, upload/share/signed-link) + provider interface
 22. Server-side PDF generator (US/Amazon-grade invoice layout, fonts, multi-page, hash) + print CSS engine
-23. QR/vCard generator, CSV/Excel parser, file validator (magic-byte), HTML sanitizer, media optimization (image/PDF compression)
+23. CSV/Excel parser, file validator (magic-byte), HTML sanitizer, media optimization (image/PDF compression)
 24. Currency/number/invoice calculator, number-to-words, decimal-safe money utils, multi-currency/FX
 25. Payment gateway adapters -- part 1 (Stripe, PayPal, Paddle)
 26. Payment gateway adapters -- part 2 (NMI, 2Checkout, Adyen for Platforms, Nium)
@@ -99,7 +99,7 @@ the authoritative current count). Estimated total files: ~1700-1900.
 ## Group 10 -- Team, Compliance, Settings (Phases 55-58... continued below)
 
 55. Team management + roles/permissions + accountant multi-company access + KYC module (Drive-backed uploads, manual review UI)
-56. Wallet/Payout module (merchant-side) + MoR status + fee breakdown + WhatsApp automation + QR business card module
+56. Wallet/Payout module (merchant-side) + MoR status + fee breakdown + WhatsApp automation
 57. E-commerce integration settings (Shopify/WooCommerce connect + direct-payment plugin/API-key settings) + reports module (sales/expense/client/tax/aging + CSV/PDF)
 58. Settings module (company/branding/gateway keys/domain/notification/security policy) + reseller module + affiliate module (blind dashboard)
 

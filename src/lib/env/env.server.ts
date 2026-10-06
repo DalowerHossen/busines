@@ -42,6 +42,7 @@ const serverEnvSchema = z.object({
 
   // Section 4 - email (optional fallback).
   RESEND_API_KEY: optionalString,
+  RESEND_WEBHOOK_SECRET: optionalString,
   EMAIL_FROM_ADDRESS: optionalString,
   EMAIL_FROM_NAME: optionalString,
   EMAIL_REPLY_TO: optionalString,
@@ -53,6 +54,7 @@ const serverEnvSchema = z.object({
   // Section 5 - payment gateways (optional fallback).
   STRIPE_SECRET_KEY: optionalString,
   STRIPE_WEBHOOK_SECRET: optionalString,
+  PAYPAL_CLIENT_ID: optionalString,
   PAYPAL_CLIENT_SECRET: optionalString,
   PAYPAL_WEBHOOK_ID: optionalString,
   PADDLE_API_KEY: optionalString,
@@ -98,10 +100,16 @@ const serverEnvSchema = z.object({
   WHATSAPP_BUSINESS_ACCOUNT_ID: optionalString,
   WHATSAPP_ACCESS_TOKEN: optionalString,
   WHATSAPP_WEBHOOK_VERIFY_TOKEN: optionalString,
+  WHATSAPP_API_VERSION: optionalString,
   SMS_PROVIDER_API_KEY: optionalString,
   SMS_PROVIDER_SENDER_ID: optionalString,
+  TWILIO_ACCOUNT_SID: optionalString,
+  TWILIO_AUTH_TOKEN: optionalString,
+  TWILIO_MESSAGING_SERVICE_SID: optionalString,
   TELEGRAM_BOT_TOKEN: optionalString,
+  TELEGRAM_WEBHOOK_SECRET_TOKEN: optionalString,
   VIBER_AUTH_TOKEN: optionalString,
+  VIBER_SENDER_NAME: optionalString,
 
   // Section 8 - security and monitoring (optional).
   TURNSTILE_SECRET_KEY: optionalString,
