@@ -6,7 +6,7 @@ import 'server-only';
 
 import { createCipheriv, createDecipheriv, randomBytes, timingSafeEqual } from 'node:crypto';
 
-import { serverEnv } from '@/env/server';
+import { serverEnv } from '@/lib/env/env.server';
 import { AppError } from '@/lib/errors';
 
 const ALGORITHM = 'aes-256-gcm';

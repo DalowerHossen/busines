@@ -8,50 +8,104 @@ The QR business-card module remains historical and superseded. Invoice QR codes 
 
 ## Verification snapshot
 
-The following checks pass with dependencies installed:
+Last re-verified on 2026-10-06 after the duplicate-lineage repair described
+below. The following checks pass on a clean checkout with dependencies
+installed:
 
-- `npm run verify`: language scan, unfinished-marker scan, TypeScript, ESLint, and Prettier.
-- `npm run verify:ecommerce`, `npm run verify:security`, `npm run verify:mor`, `npm run verify:accounting`, and `npm run verify:core`.
-- `npm run verify:phase17` through `npm run verify:phase24` and `npm run verify:phase46` through `npm run verify:phase48`, plus `npm run verify:phase35` through `npm run verify:phase45`.
-- `npm run build` with a complete local preview environment.
+- `npm run verify`: language scan, unfinished-marker scan, schema integrity,
+  TypeScript, Phase 48 coverage, the Vitest suite, ESLint and Prettier.
+- `npm run check:schema`: unique migration numbers, one creator per table,
+  row level security on every table, and no query against a table the schema
+  does not define.
+- `npm run test`: 79 unit assertions across 9 files.
+- `npm run build`: a full production build using only the values shipped in
+  `.env.example`, with no real credentials present.
+- The remaining `verify:*` smoke scripts: ecommerce, security, MoR,
+  accounting, core, and Phases 22 to 24, 35 to 46, and 48.
 
-These checks prove that the current contracts, components, smoke scripts, migration compatibility checks, and static build are internally consistent. They do not prove live Supabase integration, production credentials, browser flows, or real payment/email/storage execution.
+These checks prove that the schema applies as one coherent lineage, that the
+contracts and components are internally consistent, and that the application
+builds without production secrets. They do not prove live Supabase
+integration, browser flows, or real payment, email and storage execution.
 
-The current dependency audit reports zero vulnerabilities in the full tree after the Vitest and PostCSS dependency repairs. The security workflow remains the release gate.
+## Duplicate lineage repair
+
+The repository previously carried two independent generations of the product
+side by side. The older generation has been removed and the newer one is now
+the only lineage:
+
+- `supabase/migrations/` held 404 files over 232 sequence numbers, 172 of
+  which were used twice. 47 tables, including `users`, `companies`,
+  `clients`, `invoices` and `payments`, were created by two different
+  migrations with incompatible columns, so the schema could never be applied
+  to an empty database. The 172 files of the older lineage were removed and
+  237 files now carry one unique number each.
+- Five tables that only the removed lineage created but that live code still
+  queried were ported into the surviving lineage as migrations 00233 to
+  00236: `product_bundles`, `product_bundle_items`, `system_settings`,
+  `storage_provider_folders` and `security_rate_limit_buckets`.
+- `document_number_counters` was the last table without row level security;
+  migration 00237 closes that gap. All 230 tables now enable and force it.
+- The older generation's client module (`src/lib/clients/`, the mock driven
+  `/clients` route tree and the `/api/clients/import|export` handlers) was
+  removed. `/dashboard/clients` and `src/features/clients/` are the live
+  implementation, and the import and export surfaces live in
+  `/dashboard/settings/import` and `src/lib/export/`.
+- The two environment modules were merged into `src/lib/env/`. The removed
+  `src/env/server.ts` rejected `STORAGE_PROVIDER=google_drive`, which is the
+  documented default, so a build from `.env.example` failed.
+- The two service-role Supabase clients and the two browser clients were
+  merged into `src/lib/supabase/service.ts` and `src/lib/supabase/client.ts`.
+- Server environment validation is now lazy, so a production build no longer
+  requires the full set of runtime secrets on the build machine.
 
 ## Current implementation inventory
 
-- 303 source files under `src/` after the Phase 24 currency/FX batch.
-- 172 sequential Supabase migration files; 00169 and 00170 are the Phase 17 and Phase 18 RLS boundaries, and 00172 is the Phase 21 storage mapping migration.
-- 26 App Router page files, plus the generated sitemap, favicon, not-found, and root layout files.
-- 160 library and feature files, mostly provider-neutral contracts and pure domain logic.
-- 29 verification/helper scripts under `scripts/`, including Phase 17 through Phase 24 coverage checks.
-- 1 API route handler (the Phase 21 private storage download boundary).
-- 0 actual Server Action implementations (`use server` appears only in a convention comment).
-- 3 rollback-safe SQL/provider-boundary tests under `supabase/tests/`; 0 Vitest, integration, or Playwright test files.
-- Smoke scripts exist for the completed contract and UI batches, but they are not replacements for database, browser, or provider integration tests.
+- 1479 source files under `src/`.
+- 237 sequential Supabase migrations defining 230 tables, every one of them
+  with row level security enabled and forced.
+- 148 App Router page files plus the generated sitemap, robots, favicon,
+  not-found, error and loading boundaries.
+- 30 API route handlers, including the four cron endpoints.
+- 202 files containing Server Action implementations.
+- 9 Vitest files with 79 assertions, covering pure domain logic only.
+- 32 scripts under `scripts/`, including the schema integrity gate.
 
 ## Database and server-wiring findings
 
-- Phase 17 and Phase 18 now enable and force RLS for all 158 current public schema tables. The policies cover core/CRM/invoicing/payments, accounting, inventory, communication, ecommerce, KYC, wallet, reseller, accountant, affiliate, admin, content, projects, contracts, loyalty, and tax domains, with a rollback-safe cross-tenant isolation test. Application session/repository wiring was added in Phase 20; database policy coverage remains the final authorization boundary and must not be bypassed by the service-role client.
-- `supabase/seed.sql` is intentionally empty. Plans, English CMS content, email templates, tax defaults, expense categories, and a demo tenant are not seeded.
-- Phase 20 now supplies Supabase browser/server/admin/middleware/realtime clients and Phase 21 supplies the server-only storage boundary; no general repository/query/mutation layer is wired to the tables yet.
-- The security, payment, communication, ecommerce, email, MoR, accounting, tax, and core libraries expose useful contracts and adapters, but no route/action currently calls them against the database.
-- `src/middleware.ts` applies bot classification and security headers, but it does not refresh a Supabase session or enforce authenticated route protection.
-- `src/config/permissions.ts` and the security-library documentation describe server-side authorization as a future boundary; that boundary is not yet connected to requests.
-- The rate-limit library expects the database RPC, while the general route/action integration and policy coverage remain unfinished.
+- Row level security is enabled and forced on all 230 public tables, with
+  per domain policies installed through `install_tenant_policies` and the
+  `has_company_access` / `can_write_company_data` helpers. Tables that only
+  trusted server code may touch (`system_settings`,
+  `storage_provider_folders`, `security_rate_limit_buckets`,
+  `document_number_counters`) additionally revoke all privileges from `anon`
+  and `authenticated`.
+- `src/middleware.ts` refreshes the Supabase session, redirects
+  unauthenticated requests away from protected routes, classifies bots and
+  applies the security headers.
+- The service-role client is reached through one module and is used only by
+  cron workers, provider callbacks and the secret store.
+- `supabase/seed.sql` carries the platform seed data.
+- The SQL isolation tests that targeted the removed lineage were deleted.
+  Database level isolation tests against the surviving schema are still
+  outstanding and remain the most valuable missing safety net.
 
 ## Product-surface findings
 
-The current routes are the auth/onboarding shell, the Phase 46 dashboard and notification center, plus the Phase 44 and Phase 45 public pages. There are no CRM, product, invoice, payment, report, team, KYC, wallet, settings, admin, client-access, public API, webhook, or server-action routes.
+The application covers the dashboard, clients, products and inventory,
+invoices, estimates, expenses, payments, payouts, banking, contracts,
+projects, subscriptions, loyalty, marketing, marketplace, messaging,
+reports, settings, team, developer portal, reseller, affiliate, accountant
+and admin surfaces, plus the public marketing site, the tokenized client
+portal and the public API.
 
-Phase 45 now supplies About, Contact, Guides, Terms, Privacy, Refund, Security, DPA, Accessibility, Blog, Status, API documentation, a generated sitemap, a favicon, and a branded not-found page. Its public copy is intentionally static; CMS editing, ticket submission, live API routes, and incident management remain later server/admin work. The navigation map still contains application routes that do not yet have page files.
-
-Authentication and onboarding components accept callback props but the current route pages do not provide real Supabase callbacks. Login, signup, reset, OAuth, verification, two-factor, and onboarding are presentational/form contracts until the server clients, actions, session refresh, and redirects are implemented.
-
-The requirements call for Recharts, which remains absent; Phase 46 uses an accessible CSS bar visualization with screen-reader text rather than adding a chart dependency. Phase 21 supplies a concrete Google Drive adapter, provider factory, tenant folder mapping, official Drive v3 upload/share/delete boundary, and application-gated private download route. Phase 22 supplies server-side React-PDF rendering, embedded fonts, A4/Letter pagination, exact-byte SHA-256 hashing, snapshot preparation, and browser print CSS. Phase 23 supplies bounded CSV/XLSX parsing, formula and macro defenses, magic-byte validation, HTML/SVG sanitization, image/PDF optimization, and secure CSV serialization. Phase 24 supplies decimal-safe Money arithmetic, currency minor-unit conversion, configurable invoice rounding, versioned tax-rule references, English number-to-words, and immutable direct/inverse FX conversion. Phase 46 supplies dashboard, tenant-scoped search, command palette, and notification-center contracts; live database/auth wiring remains later. Invoice QR generation and the public tokenized client-access page remain absent.
-
-`public/robots.txt` now has a generated `/sitemap.xml` target and the App Router has a favicon route. OpenGraph image generation, JSON-LD implementation, health endpoint, and an automated runtime dead-link audit are still absent.
+Known requirement gaps that remain open: Recharts is still absent and the
+dashboard uses an accessible CSS bar visualization instead; invoice QR code
+generation is not implemented; the bKash and Nagad local rails are present
+as adapters but are far thinner than the Stripe and Adyen paths; and the
+`src/lib/money.ts` and `src/lib/core/money.ts` layers still express money in
+two shapes, even though they now share one stored scale and one accepted
+amount pattern.
 
 ## Phase reconciliation
 

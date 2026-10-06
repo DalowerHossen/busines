@@ -6,7 +6,7 @@
 'use server';
 
 import { ROUTES } from '@/config/app';
-import { clientEnv } from '@/env/client';
+import { clientEnv } from '@/lib/env/env.client';
 import { provisionAccount } from '@/features/auth/services/provision-account';
 import { recordLoginAttempt } from '@/features/auth/services/login-attempts';
 import { signUpSchema } from '@/features/auth/validation/auth';

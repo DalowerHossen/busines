@@ -7,7 +7,7 @@
 import { NextResponse } from 'next/server';
 
 import { ROUTES } from '@/config/app';
-import { absoluteUrl } from '@/env/client';
+import { absoluteUrl } from '@/lib/env/env.client';
 import { loadCompany } from '@/lib/auth/company-context';
 import { getSessionUser } from '@/lib/auth/session';
 import { errorResponse, HTTP_STATUS } from '@/lib/http/responses';

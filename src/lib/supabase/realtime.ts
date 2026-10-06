@@ -4,8 +4,9 @@
 // rejects channel/filter injection before it reaches Supabase.
 'use client';
 
+import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import type { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js';
-import { createSupabaseBrowserClient } from './browser';
+import { getBrowserSupabaseClient } from './client';
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
 const IDENTIFIER_PATTERN = /^[a-z][a-z0-9_]{0,63}$/u;
@@ -31,7 +32,7 @@ export function subscribeToCompanyChanges(input: {
     throw new Error('Realtime table names must be safe lowercase identifiers.');
   }
 
-  const client = input.client ?? createSupabaseBrowserClient();
+  const client: SupabaseClient = input.client ?? getBrowserSupabaseClient();
   const channelName = input.channelName ?? `company:${input.companyId}`;
   if (!/^company:[0-9a-f-]{36}$/iu.test(channelName)) {
     throw new Error('Realtime channel name must be company-scoped.');
@@ -47,7 +48,7 @@ export function subscribeToCompanyChanges(input: {
         table,
         filter: `company_id=eq.${input.companyId}`,
       },
-      (payload) => {
+      (payload: RealtimePostgresChangesPayload<Record<string, unknown>>) => {
         input.onEvent({
           event: payload.eventType as TenantRealtimeEvent['event'],
           table,

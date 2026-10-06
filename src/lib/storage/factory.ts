@@ -5,7 +5,7 @@ import 'server-only';
 
 import type { StorageAdapter, StorageProviderId } from '@/types/storage';
 import { serverEnv } from '@/lib/env/env.server';
-import { createSupabaseAdminClient } from '@/lib/supabase/admin';
+import { getServiceSupabaseClient } from '@/lib/supabase/service';
 
 import { StorageProviderError } from './errors';
 import { createSupabaseStorageFolderStore, type StorageFolderStore } from './folder-store';
@@ -40,7 +40,7 @@ export function createStorageAdapter(options: StorageFactoryOptions = {}): Stora
   switch (providerId) {
     case 'google_drive': {
       const folderStore =
-        options.folderStore ?? createSupabaseStorageFolderStore(createSupabaseAdminClient());
+        options.folderStore ?? createSupabaseStorageFolderStore(getServiceSupabaseClient());
       return createGoogleDriveStorageAdapter(
         options.googleDriveConfig ?? createGoogleDriveConfig(),
         folderStore

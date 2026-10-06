@@ -83,6 +83,9 @@ export default async function PayoutsPage() {
         description="Everything a client pays you online arrives here first, then goes to your own account. Every fee taken on the way is shown line by line."
         actions={
           overview.wallet ? (
+            // A route handler streams a file download, so an anchor is correct
+            // here; next/link would prefetch and route it as a page.
+            // eslint-disable-next-line @next/next/no-html-link-for-pages
             <a
               href="/api/payouts/statement"
               className={cn(buttonVariants({ variant: 'secondary' }))}

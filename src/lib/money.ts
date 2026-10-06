@@ -14,6 +14,14 @@ export type MoneyInput = string | number | Decimal;
 export const STORED_SCALE = 4;
 
 /**
+ * The only accepted wire shape for a money string: an optional sign, no
+ * leading zeroes and at most {@link STORED_SCALE} decimals. Every domain
+ * module validates against this one pattern so the stored scale cannot
+ * drift between the invoicing, accounting and settlement engines.
+ */
+export const STORED_AMOUNT_PATTERN = /^-?(?:0|[1-9]\d*)(?:\.\d{1,4})?$/u;
+
+/**
  * Parses any accepted money input into a decimal.
  *
  * @param value Amount as a string, number or decimal.

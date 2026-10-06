@@ -21,7 +21,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { notify } from '@/components/ui/toaster';
-import { absoluteUrl } from '@/env/client';
+import { absoluteUrl } from '@/lib/env/env.client';
 import { renewInvitation } from '@/features/team/actions/renew-invitation';
 import { revokeInvitation } from '@/features/team/actions/revoke-invitation';
 import type { TeamInvitation } from '@/features/team/types';

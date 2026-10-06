@@ -16,6 +16,21 @@
 import 'server-only';
 import { z } from 'zod';
 
+/**
+ * Treats an empty variable as an absent one.
+ *
+ * Hosting platforms habitually define every variable they know about, with
+ * an empty value where nothing was filled in. Without this, an empty
+ * optional field fails validation and the whole boot stops over a setting
+ * nobody uses.
+ *
+ * @param value Raw value read from the environment.
+ * @returns The value, or undefined when it carries nothing.
+ */
+function blankAsMissing(value: unknown): unknown {
+  return typeof value === 'string' && value.trim() === '' ? undefined : value;
+}
+
 const optionalString = z
   .string()
   .optional()
@@ -88,8 +103,13 @@ const serverEnvSchema = z.object({
   GOOGLE_DRIVE_CLIENT_EMAIL: optionalString,
   GOOGLE_DRIVE_PRIVATE_KEY: optionalString,
   GOOGLE_DRIVE_ROOT_FOLDER_ID: optionalString,
+  // OAuth client used by the per tenant Google Drive connection flow, as
+  // opposed to the service account pair above.
+  GOOGLE_DRIVE_CLIENT_ID: optionalString,
+  GOOGLE_DRIVE_CLIENT_SECRET: optionalString,
   STORAGE_S3_ENDPOINT: optionalString,
-  STORAGE_S3_REGION: optionalString,
+  // Several S3 compatible providers (R2, B2) accept a literal 'auto'.
+  STORAGE_S3_REGION: z.preprocess(blankAsMissing, z.string().default('auto')),
   STORAGE_S3_BUCKET: optionalString,
   STORAGE_S3_ACCESS_KEY_ID: optionalString,
   STORAGE_S3_SECRET_ACCESS_KEY: optionalString,
@@ -127,7 +147,11 @@ const serverEnvSchema = z.object({
   SHOPIFY_API_SECRET: optionalString,
   WOOCOMMERCE_WEBHOOK_SECRET: optionalString,
   BANK_FEED_PROVIDER_KEY: optionalString,
+  OCR_PROVIDER_URL: z.preprocess(blankAsMissing, z.string().url().optional()),
   OCR_PROVIDER_API_KEY: optionalString,
+
+  // Section 11 - diagnostics (optional).
+  LOG_LEVEL: z.preprocess(blankAsMissing, z.enum(['debug', 'info', 'warn', 'error']).optional()),
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
@@ -166,4 +190,57 @@ function loadServerEnv(): Readonly<ServerEnv> {
   return Object.freeze(result.data);
 }
 
-export const serverEnv: Readonly<ServerEnv> = loadServerEnv();
+let cachedServerEnv: Readonly<ServerEnv> | undefined;
+
+/**
+ * Returns the validated server environment, parsing it on first use.
+ *
+ * Validation is deliberately deferred until a value is actually read. A
+ * production build imports every route module to collect page data, so
+ * validating at module scope would force the build machine to hold the
+ * full set of runtime secrets, which neither Docker, Netlify nor Vercel
+ * requires. Reading a value at request time still fails fast and loudly.
+ *
+ * @returns The validated, typed server environment.
+ */
+export function getServerEnv(): Readonly<ServerEnv> {
+  cachedServerEnv ??= loadServerEnv();
+  return cachedServerEnv;
+}
+
+/**
+ * The server environment, resolved lazily on first property access so that
+ * `serverEnv.SOME_KEY` keeps working everywhere without a boot time parse.
+ */
+export const serverEnv: Readonly<ServerEnv> = new Proxy({} as ServerEnv, {
+  get(_target, property: string | symbol) {
+    return getServerEnv()[property as keyof ServerEnv];
+  },
+  has(_target, property: string | symbol) {
+    return property in getServerEnv();
+  },
+  ownKeys() {
+    return Reflect.ownKeys(getServerEnv());
+  },
+  getOwnPropertyDescriptor(_target, property: string | symbol) {
+    return Reflect.getOwnPropertyDescriptor(getServerEnv(), property);
+  },
+});
+
+/**
+ * Reports whether the application is running in production.
+ *
+ * @returns True in the production environment.
+ */
+export function isProduction(): boolean {
+  return getServerEnv().APP_ENV === 'production';
+}
+
+/**
+ * Reports whether the application is running against test fixtures.
+ *
+ * @returns True in the test environment.
+ */
+export function isTestEnvironment(): boolean {
+  return getServerEnv().APP_ENV === 'test';
+}

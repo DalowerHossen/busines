@@ -24,7 +24,7 @@ import {
 import { notify } from '@/components/ui/toaster';
 import { saveAffiliateLink } from '@/features/affiliates/actions/save-affiliate-link';
 import type { AffiliateLink } from '@/features/affiliates/types';
-import { clientEnv } from '@/env/client';
+import { clientEnv } from '@/lib/env/env.client';
 import { formatNumber } from '@/lib/format';
 
 export interface ReferralLinksPanelProps {

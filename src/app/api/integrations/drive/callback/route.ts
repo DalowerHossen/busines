@@ -9,7 +9,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
 import { ROUTES } from '@/config/app';
-import { absoluteUrl } from '@/env/client';
+import { absoluteUrl } from '@/lib/env/env.client';
 import { recordAuditEntry } from '@/lib/audit/record';
 import { encryptCredentialBundle } from '@/lib/crypto/encryption';
 import { sha256Hex } from '@/lib/crypto/hashing';

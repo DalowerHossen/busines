@@ -5,7 +5,7 @@
 import type { Metadata } from 'next';
 
 import { BRAND } from '@/config/brand';
-import { clientEnv } from '@/env/client';
+import { clientEnv } from '@/lib/env/env.client';
 
 export interface PageMetadataInput {
   /** Title of the page, without the product name. */

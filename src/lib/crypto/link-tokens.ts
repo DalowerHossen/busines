@@ -4,7 +4,7 @@
 
 import 'server-only';
 
-import { serverEnv } from '@/env/server';
+import { serverEnv } from '@/lib/env/env.server';
 import { hmacBase64Url, signaturesMatch } from '@/lib/crypto/hashing';
 import { AppError } from '@/lib/errors';
 

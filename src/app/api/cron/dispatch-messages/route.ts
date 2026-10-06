@@ -5,7 +5,7 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-import { serverEnv } from '@/env/server';
+import { serverEnv } from '@/lib/env/env.server';
 import { dispatchDueMessages } from '@/lib/email/dispatch';
 import { advanceDueRoutes } from '@/lib/messaging/advance';
 import { errorResponse, HTTP_STATUS } from '@/lib/http/responses';

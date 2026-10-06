@@ -5,7 +5,7 @@
 import 'server-only';
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { createSupabaseAdminClient } from '@/lib/supabase/admin';
+import { getServiceSupabaseClient } from '@/lib/supabase/service';
 import { serverEnv } from '@/lib/env/env.server';
 import { decryptSecret, encryptSecret, serializeSecretEnvelope } from './encryption';
 
@@ -119,7 +119,7 @@ export function createDefaultKeyVault(): EncryptedKeyVault {
   return new EncryptedKeyVault({
     masterKey: serverEnv.ENCRYPTION_KEY,
     keyVersion: 'v1',
-    store: createSupabaseSecretStore(createSupabaseAdminClient()),
+    store: createSupabaseSecretStore(getServiceSupabaseClient()),
   });
 }
 

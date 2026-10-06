@@ -5,7 +5,7 @@
 'use server';
 
 import { ROUTES } from '@/config/app';
-import { clientEnv } from '@/env/client';
+import { clientEnv } from '@/lib/env/env.client';
 import { resendVerificationSchema } from '@/features/auth/validation/auth';
 import { createAction } from '@/lib/actions/create-action';
 import { buildOAuthRedirectUrl } from '@/lib/auth/oauth';

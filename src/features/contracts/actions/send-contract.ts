@@ -7,7 +7,7 @@
 
 import { revalidatePath } from 'next/cache';
 
-import { clientEnv } from '@/env/client';
+import { clientEnv } from '@/lib/env/env.client';
 import { loadContract } from '@/features/contracts/queries/get-contract';
 import { sendContractSchema } from '@/features/contracts/validation/contracts';
 import { issueDocumentLink } from '@/features/portal/services/issue-document-link';

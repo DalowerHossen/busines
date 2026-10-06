@@ -7,7 +7,7 @@
 import { createBrowserClient } from '@supabase/ssr';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-import { clientEnv } from '@/env/client';
+import { clientEnv } from '@/lib/env/env.client';
 import type { Database } from '@/types/database';
 
 export type BrowserSupabaseClient = SupabaseClient<Database, 'public'>;

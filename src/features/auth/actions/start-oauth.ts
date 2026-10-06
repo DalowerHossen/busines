@@ -4,7 +4,7 @@
 
 'use server';
 
-import { clientEnv } from '@/env/client';
+import { clientEnv } from '@/lib/env/env.client';
 import { oauthStartSchema } from '@/features/auth/validation/auth';
 import { createAction } from '@/lib/actions/create-action';
 import { OAUTH_PROVIDERS, buildOAuthRedirectUrl, safeRedirectPath } from '@/lib/auth/oauth';

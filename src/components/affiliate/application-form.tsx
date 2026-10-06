@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { notify } from '@/components/ui/toaster';
 import { applyAffiliate } from '@/features/affiliates/actions/apply-affiliate';
-import { clientEnv } from '@/env/client';
+import { clientEnv } from '@/lib/env/env.client';
 
 export interface ApplicationFormProps {
   /** Address to use as the opening answer for contact. */

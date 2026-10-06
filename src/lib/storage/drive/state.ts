@@ -9,7 +9,7 @@ import 'server-only';
 
 import { createHmac, timingSafeEqual } from 'node:crypto';
 
-import { serverEnv } from '@/env/server';
+import { serverEnv } from '@/lib/env/env.server';
 
 /** How long a consent may take before the answer stops being accepted. */
 const WINDOW_SECONDS = 900;

@@ -19,7 +19,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { notify } from '@/components/ui/toaster';
 import { ACCOUNTANT_PERMISSIONS, DEFAULT_STAFF_PERMISSIONS } from '@/config/permissions';
 import type { PermissionMap } from '@/config/permissions';
-import { absoluteUrl } from '@/env/client';
+import { absoluteUrl } from '@/lib/env/env.client';
 import { inviteMember } from '@/features/team/actions/invite-member';
 import { formatDate } from '@/lib/dates';
 
