@@ -3,9 +3,9 @@
 // log use only. `publicLabel` is the ONLY string allowed to reach public,
 // client-facing UI copy: per docs/planning/ARCHITECTURE-DECISIONS.md
 // section 4, no page a client or the public ever sees may print a specific
-// provider or country brand name. Concrete adapters are implemented
-// starting Phase 25; this file only describes each gateway's capabilities
-// so the rest of the application can branch on capability, not on identity.
+// provider or country brand name. The concrete adapters live in
+// src/lib/payments/; this file only describes each gateway's capabilities so
+// the rest of the application can branch on capability, not on identity.
 import type { GatewayId } from '@/types/payment';
 
 /**

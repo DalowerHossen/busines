@@ -83,6 +83,13 @@ export const DEFAULT_CURRENCY_CODE: CurrencyCode = 'USD' as CurrencyCode;
  * @returns The matching definition, or `undefined` if the code is not
  * (yet) in {@link SUPPORTED_CURRENCIES}.
  */
-export function getCurrencyDefinition(code: CurrencyCode): CurrencyDefinition | undefined {
-  return CURRENCY_BY_CODE.get(code);
+export function isSupportedCurrencyCode(code: string): code is CurrencyCode {
+  return /^[A-Z]{3}$/u.test(code) && CURRENCY_BY_CODE.has(code);
+}
+
+/**
+ * Looks up a currency by its uppercase ISO 4217 code.
+ */
+export function getCurrencyDefinition(code: string): CurrencyDefinition | undefined {
+  return CURRENCY_BY_CODE.get(code.toUpperCase());
 }

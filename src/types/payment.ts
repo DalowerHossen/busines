@@ -1,7 +1,7 @@
 // src/types/payment.ts
 // Payment-family domain types: payments, saved payment methods, refunds,
 // chargebacks, and the pluggable gateway identifier shared by every
-// adapter. Concrete gateway adapters are implemented starting in Phase 25;
+// adapter. Concrete gateway adapters live in `src/lib/payments/`;
 // this file only defines the shapes every adapter produces and consumes.
 // PCI SAQ-A scope: raw card data is never represented here or anywhere in
 // this codebase, only gateway-issued tokens and references (see

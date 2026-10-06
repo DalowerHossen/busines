@@ -1,0 +1,128 @@
+@import '../styles/print.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 210 40% 98%;
+  --foreground: 222 47% 11%;
+  --surface: 0 0% 100%;
+  --surface-muted: 210 40% 96%;
+  --surface-raised: 210 40% 98%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  --border: 214 32% 91%;
+  --input: 214 32% 84%;
+  --ring: 221 83% 53%;
+  --primary: 221 83% 53%;
+  --primary-foreground: 0 0% 100%;
+  --primary-hover: 224 76% 48%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222 47% 16%;
+  --accent: 199 89% 48%;
+  --accent-foreground: 0 0% 100%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%;
+  --success: 160 84% 39%;
+  --success-foreground: 160 84% 20%;
+  --success-subtle: 152 81% 96%;
+  --warning: 38 92% 50%;
+  --warning-foreground: 32 81% 29%;
+  --warning-subtle: 48 100% 96%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 63% 32%;
+  --destructive-subtle: 0 86% 97%;
+  --info: 199 89% 48%;
+  --info-foreground: 201 90% 27%;
+  --info-subtle: 204 100% 97%;
+  --brand-50: 226 100% 97%;
+  --brand-100: 226 100% 94%;
+  --brand-200: 226 94% 88%;
+  --brand-300: 224 93% 78%;
+  --brand-400: 224 86% 65%;
+  --brand-500: 221 83% 53%;
+  --brand-600: 224 76% 48%;
+  --brand-700: 226 71% 40%;
+  --brand-800: 226 63% 32%;
+  --brand-900: 226 57% 24%;
+  --brand-950: 226 55% 14%;
+  --sidebar: 222 47% 11%;
+  --sidebar-foreground: 210 40% 98%;
+  --sidebar-muted: 215 20% 65%;
+  --sidebar-active: 221 83% 53%;
+  --sidebar-border: 217 33% 20%;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.125rem;
+  --shadow-xs: 0 1px 2px rgb(15 23 42 / 0.04);
+  --shadow-sm: 0 4px 12px rgb(15 23 42 / 0.06);
+  --shadow-md: 0 12px 28px rgb(15 23 42 / 0.08);
+  --shadow-lg: 0 20px 45px rgb(15 23 42 / 0.12);
+  --shadow-brand: 0 8px 24px rgb(37 99 235 / 0.22);
+  --motion-fast: 140ms;
+  --motion-base: 220ms;
+  --motion-slow: 420ms;
+  --motion-ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --motion-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-heading: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --content-max-width: 1440px;
+  --form-max-width: 560px;
+  --topbar-height: 4rem;
+  --sidebar-width: 17rem;
+  --sidebar-width-collapsed: 5rem;
+}
+
+.dark {
+  --background: 222 47% 8%;
+  --foreground: 210 40% 98%;
+  --surface: 222 41% 12%;
+  --surface-muted: 217 33% 17%;
+  --surface-raised: 217 33% 20%;
+  --card: 222 41% 12%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222 41% 12%;
+  --popover-foreground: 210 40% 98%;
+  --border: 217 33% 22%;
+  --input: 217 33% 28%;
+  --muted: 217 33% 17%;
+  --muted-foreground: 215 20% 65%;
+  --secondary-foreground: 210 40% 98%;
+  --success-foreground: 152 76% 75%;
+  --success-subtle: 160 84% 12%;
+  --warning-foreground: 48 96% 76%;
+  --warning-subtle: 32 81% 14%;
+  --destructive-foreground: 0 93% 86%;
+  --destructive-subtle: 0 63% 16%;
+  --info-foreground: 199 89% 78%;
+  --info-subtle: 201 90% 14%;
+  --sidebar: 222 47% 6%;
+  --sidebar-border: 217 33% 18%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+  }
+
+  ::selection {
+    @apply bg-brand-200 text-brand-950;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}

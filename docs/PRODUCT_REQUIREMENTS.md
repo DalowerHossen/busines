@@ -1,10 +1,11 @@
 <!-- docs/PRODUCT_REQUIREMENTS.md -->
+
 # KD SOLUTION IT — Canonical Product Requirements Catalogue
 
 **Status:** Approved product scope baseline  
 **Market:** Asia-first service; platform billing currency defaults to USD  
 **Language rule:** Product UI, database seed data, emails, error messages, code comments, and operational documentation are English-only.  
-**Purpose:** This catalogue consolidates the supplied requirements into one implementation source of truth. A requirement is not dropped simply because it belongs to a future delivery phase.
+**Purpose:** This catalogue consolidates the supplied requirements into one implementation source of truth. A requirement is not dropped simply because it belongs to a future delivery phase. The owner explicitly excluded the QR business card module from the current scope on 2026-10-06; the historical requirements remain recorded as superseded for traceability, while invoice QR codes remain in scope.
 
 ## Catalogue governance
 
@@ -164,12 +165,12 @@
 97. Provide sales reports.
 98. Provide expense reports.
 99. Provide client reports.
-100. Provide tax-summary reports.
-101. Report VAT input/output and net payable.
-102. Show a TOTAL row in every report.
-103. Filter reports by period and date.
-104. Export every report as CSV.
-105. Export every report as PDF.
+100.  Provide tax-summary reports.
+101.  Report VAT input/output and net payable.
+102.  Show a TOTAL row in every report.
+103.  Filter reports by period and date.
+104.  Export every report as CSV.
+105.  Export every report as PDF.
 
 # L. Team and KYC (106–113)
 
@@ -256,7 +257,9 @@
 169. Track delivery and read status.
 170. Receive WhatsApp inbound webhooks.
 
-# P3. QR business cards (171–177)
+# P3. QR business cards (171–177) — SUPERSEDED / excluded from current scope
+
+**Status:** SUPERSEDED by the owner on 2026-10-06. Retained as historical requirements only; no implementation is planned.
 
 171. Provide a QR-card builder.
 172. Generate vCard QR codes.
@@ -696,12 +699,12 @@
 
 The supplied final account model defines these four operational account roles:
 
-| Role | Intended holder | Access boundary |
-| --- | --- | --- |
-| `super_admin` | KD SOLUTION IT platform operator | Entire platform, every tenant, MoR, KYC, and CMS |
-| `owner` | A customer company owner | All resources for their own company: billing, gateways, staff, and KYC |
-| `staff` | An employee invited by an owner | Only the granular permissions granted by the owner |
-| `affiliate` | Referral partner | Referral dashboard only |
+| Role          | Intended holder                  | Access boundary                                                        |
+| ------------- | -------------------------------- | ---------------------------------------------------------------------- |
+| `super_admin` | KD SOLUTION IT platform operator | Entire platform, every tenant, MoR, KYC, and CMS                       |
+| `owner`       | A customer company owner         | All resources for their own company: billing, gateways, staff, and KYC |
+| `staff`       | An employee invited by an owner  | Only the granular permissions granted by the owner                     |
+| `affiliate`   | Referral partner                 | Referral dashboard only                                                |
 
 Client users never receive an account role. They interact using signed, expiring public links. The supplied future scope also calls for **reseller** and **accountant** access. Preserve those capabilities, but resolve whether they are additional account roles, constrained staff presets, or delegated access types before authorization tables are finalised.
 
@@ -1654,7 +1657,7 @@ Client users never receive an account role. They interact using signed, expiring
 - Provide Telegram sharing.
 - Provide copy-link sharing.
 - Preview share cards.
-- Provide a Share your QR card flow.
+- Provide a Share your QR card flow. (SUPERSEDED with the QR business card module exclusion.)
 - Share invoices and estimates over WhatsApp.
 - Provide referral share kits and social-proof widgets.
 
@@ -1881,36 +1884,36 @@ The original requirements explicitly place the extended feature set before this 
 
 # Requirements coverage index
 
-| Catalogue range | Area |
-| --- | --- |
-| 1–14 | Brand and design system |
-| 15–31 | CMS-editable public site |
-| 32–40 | Authentication |
-| 41–48 | Onboarding and company profile |
-| 49–54 | Dashboard |
-| 55–60 | CRM |
-| 61–64 | Products and services |
-| 65–81 | Core invoicing |
-| 82–86 | Estimates and documents |
-| 87–96 | Payments |
-| 97–105 | Reports |
-| 106–113 | Team and KYC |
-| 114–122 | Tenant settings |
-| 123–145 | Super administration |
-| 146–153 | Email engine |
-| 154–163 | Security and data foundations |
-| 164–295 | WhatsApp, QR cards, ecommerce, inventory, accounting, MoR, API, token client access, content, branding, invoice format, security, GDPR, testing, and hosting |
-| 296–389 | Trial, notifications, billing lifecycle, tax, reporting, inventory, permissions, administration, UX, performance, developer experience, and scheduled jobs |
-| 390–482 | Gateway framework, local payments, subscriptions, payment UX, MoR, document workflow, support, marketing, legal, and platform engineering |
-| 483–556 | Token client access, email journey, staff email routing, gateway routing, blind affiliates, owner-only sending, bulk send, sent-versus-paid dashboard, and strict isolation |
-| 558–609 | Payment consent, delivery proof, audit chain, dispute evidence, prevention, and legal protection |
-| 610–670 | Design, navigation, English content, and mobile-first standards |
-| 671–805 | Secrets, application security, privacy, CI, deliverability, financial accuracy, QA, performance, incidents, lifecycle, and quality gates |
-| 806–930 | Runtime, database rigor, concurrency, invoice/PDF/email quality, entitlement, legal, developer interface, and polish |
-| 931–1052 | Link security, payments, international tax, KYC/AML, safe UX, imports, service billing, client data, tenant controls, API maturity, release ops, and final gaps |
-| 1053–1162 | Storage/media, first-run infrastructure, domains, abuse prevention, collections, industry presets, governance, and keyboard/offline UX |
-| 1163–1234 | Marketing, analytics, SEO, social, automation, and conversion optimisation |
-| 1235 onward | Reseller, accountant, marketplace, integration, messaging, bank feeds, OCR, e-sign, BNPL, loyalty, and reviews |
+| Catalogue range | Area                                                                                                                                                                                                      |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1–14            | Brand and design system                                                                                                                                                                                   |
+| 15–31           | CMS-editable public site                                                                                                                                                                                  |
+| 32–40           | Authentication                                                                                                                                                                                            |
+| 41–48           | Onboarding and company profile                                                                                                                                                                            |
+| 49–54           | Dashboard                                                                                                                                                                                                 |
+| 55–60           | CRM                                                                                                                                                                                                       |
+| 61–64           | Products and services                                                                                                                                                                                     |
+| 65–81           | Core invoicing                                                                                                                                                                                            |
+| 82–86           | Estimates and documents                                                                                                                                                                                   |
+| 87–96           | Payments                                                                                                                                                                                                  |
+| 97–105          | Reports                                                                                                                                                                                                   |
+| 106–113         | Team and KYC                                                                                                                                                                                              |
+| 114–122         | Tenant settings                                                                                                                                                                                           |
+| 123–145         | Super administration                                                                                                                                                                                      |
+| 146–153         | Email engine                                                                                                                                                                                              |
+| 154–163         | Security and data foundations                                                                                                                                                                             |
+| 164–295         | WhatsApp, ecommerce, inventory, accounting, MoR, API, token client access, content, branding, invoice format, security, GDPR, testing, and hosting (QR business card module superseded by owner decision) |
+| 296–389         | Trial, notifications, billing lifecycle, tax, reporting, inventory, permissions, administration, UX, performance, developer experience, and scheduled jobs                                                |
+| 390–482         | Gateway framework, local payments, subscriptions, payment UX, MoR, document workflow, support, marketing, legal, and platform engineering                                                                 |
+| 483–556         | Token client access, email journey, staff email routing, gateway routing, blind affiliates, owner-only sending, bulk send, sent-versus-paid dashboard, and strict isolation                               |
+| 558–609         | Payment consent, delivery proof, audit chain, dispute evidence, prevention, and legal protection                                                                                                          |
+| 610–670         | Design, navigation, English content, and mobile-first standards                                                                                                                                           |
+| 671–805         | Secrets, application security, privacy, CI, deliverability, financial accuracy, QA, performance, incidents, lifecycle, and quality gates                                                                  |
+| 806–930         | Runtime, database rigor, concurrency, invoice/PDF/email quality, entitlement, legal, developer interface, and polish                                                                                      |
+| 931–1052        | Link security, payments, international tax, KYC/AML, safe UX, imports, service billing, client data, tenant controls, API maturity, release ops, and final gaps                                           |
+| 1053–1162       | Storage/media, first-run infrastructure, domains, abuse prevention, collections, industry presets, governance, and keyboard/offline UX                                                                    |
+| 1163–1234       | Marketing, analytics, SEO, social, automation, and conversion optimisation                                                                                                                                |
+| 1235 onward     | Reseller, accountant, marketplace, integration, messaging, bank feeds, OCR, e-sign, BNPL, loyalty, and reviews                                                                                            |
 
 ## Completion rule
 
