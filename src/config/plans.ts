@@ -116,3 +116,95 @@ export const DEFAULT_PLAN_TIERS: readonly PlanTierDefault[] = [
     limits: UNLIMITED_PLAN_LIMITS,
   },
 ];
+
+export type BillingPeriod = 'monthly' | 'yearly';
+
+export interface Plan {
+  readonly key: string;
+  readonly name: string;
+  readonly tagline: string;
+  readonly monthlyPrice: string;
+  readonly yearlyPrice: string;
+  readonly trialDays: number;
+  readonly badge?: string;
+  readonly callToAction: string;
+  readonly highlights: readonly string[];
+}
+
+export const PLAN_CURRENCY = 'USD';
+
+export const PLANS: readonly Plan[] = DEFAULT_PLAN_TIERS.filter(
+  (plan) => plan.isPubliclyVisible
+).map((plan) => ({
+  key: plan.tierId,
+  name: plan.name,
+  tagline: `${plan.name} tools for growing businesses.`,
+  monthlyPrice:
+    plan.tierId === 'free'
+      ? '0'
+      : plan.tierId === 'starter'
+        ? '19'
+        : plan.tierId === 'professional'
+          ? '49'
+          : '99',
+  yearlyPrice:
+    plan.tierId === 'free'
+      ? '0'
+      : plan.tierId === 'starter'
+        ? '15'
+        : plan.tierId === 'professional'
+          ? '39'
+          : '79',
+  trialDays: plan.tierId === 'free' ? 0 : 14,
+  badge: plan.tierId === 'professional' ? 'Most popular' : undefined,
+  callToAction: plan.tierId === 'free' ? 'Start free' : 'Start trial',
+  highlights: ['Invoices and client records', 'Secure team access', 'Helpful business reports'],
+}));
+
+export const PLAN_COMPARISON = [
+  {
+    title: 'Core billing',
+    rows: [
+      {
+        label: 'Invoices',
+        values: { free: true, starter: true, professional: true, business: true },
+      },
+      {
+        label: 'Client records',
+        values: { free: true, starter: true, professional: true, business: true },
+      },
+      {
+        label: 'Payment tracking',
+        values: { free: true, starter: true, professional: true, business: true },
+      },
+    ],
+  },
+  {
+    title: 'Business controls',
+    rows: [
+      {
+        label: 'Team access',
+        values: { free: false, starter: true, professional: true, business: true },
+      },
+      {
+        label: 'Reports',
+        values: { free: true, starter: true, professional: true, business: true },
+      },
+      {
+        label: 'Exports',
+        values: { free: false, starter: true, professional: true, business: true },
+      },
+    ],
+  },
+] as const;
+
+export const PRICING_FAQ = [
+  {
+    question: 'Can I start without a card?',
+    answer: 'Yes. The free plan does not require a card.',
+  },
+  {
+    question: 'Can I change plans later?',
+    answer: 'Yes. You can change your plan as your business grows.',
+  },
+] as const;

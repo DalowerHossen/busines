@@ -93,3 +93,14 @@ export function isSupportedCurrencyCode(code: string): code is CurrencyCode {
 export function getCurrencyDefinition(code: string): CurrencyDefinition | undefined {
   return CURRENCY_BY_CODE.get(code.toUpperCase());
 }
+
+export const CURRENCIES = SUPPORTED_CURRENCIES;
+export function findCurrency(code: string): CurrencyDefinition | undefined {
+  return getCurrencyDefinition(code);
+}
+export function currencyDecimals(code: string): number {
+  return getCurrencyDefinition(code)?.decimalDigits ?? 2;
+}
+export function isSupportedCurrency(code: string): code is CurrencyCode {
+  return isSupportedCurrencyCode(code.toUpperCase());
+}

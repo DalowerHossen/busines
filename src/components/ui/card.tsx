@@ -1,8 +1,12 @@
-import { forwardRef, type HTMLAttributes } from 'react';
+import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 
-export const Card = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
+export interface CardProps extends HTMLAttributes<HTMLDivElement> {
+  readonly actions?: ReactNode;
+}
+
+export const Card = forwardRef<HTMLDivElement, CardProps>(
+  ({ className, actions, children, ...props }, ref) => (
     <div
       ref={ref}
       className={cn(
@@ -10,14 +14,26 @@ export const Card = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
         className
       )}
       {...props}
-    />
+    >
+      {actions ? <div className="flex justify-end p-4 pb-0">{actions}</div> : null}
+      {children}
+    </div>
   )
 );
 Card.displayName = 'Card';
 
-export const CardHeader = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn('flex flex-col gap-1.5 p-5 sm:p-6', className)} {...props} />
+export interface CardHeaderProps extends HTMLAttributes<HTMLDivElement> {
+  readonly actions?: ReactNode;
+}
+
+export const CardHeader = forwardRef<HTMLDivElement, CardHeaderProps>(
+  ({ className, actions, children, ...props }, ref) => (
+    <div ref={ref} className={cn('flex flex-col gap-1.5 p-5 sm:p-6', className)} {...props}>
+      <div className={actions ? 'flex items-start justify-between gap-4' : undefined}>
+        <div className="min-w-0 flex-1">{children}</div>
+        {actions}
+      </div>
+    </div>
   )
 );
 CardHeader.displayName = 'CardHeader';

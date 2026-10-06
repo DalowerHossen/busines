@@ -6,6 +6,7 @@ const alertVariants = cva('relative flex gap-3 rounded-xl border p-4 text-sm', {
   variants: {
     variant: {
       info: 'border-info/25 bg-info-subtle text-info-foreground',
+      neutral: 'border-border bg-surface-muted text-foreground',
       success: 'border-success/25 bg-success-subtle text-success-foreground',
       warning: 'border-warning/30 bg-warning-subtle text-warning-foreground',
       danger: 'border-destructive/25 bg-destructive-subtle text-destructive-foreground',
@@ -18,19 +19,34 @@ export interface AlertProps
   extends HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof alertVariants> {
   readonly icon?: ReactNode;
+  readonly tone?: 'neutral' | 'success' | 'warning' | 'danger' | 'info';
+  readonly title?: string;
+  readonly action?: ReactNode;
 }
 
 export const Alert = forwardRef<HTMLDivElement, AlertProps>(
-  ({ className, variant, icon, ...props }, ref) => (
-    <div ref={ref} role="status" className={cn(alertVariants({ variant, className }))} {...props}>
-      {icon ? (
-        <span className="mt-0.5 shrink-0" aria-hidden="true">
-          {icon}
-        </span>
-      ) : null}
-      <div className="min-w-0 flex-1">{props.children}</div>
-    </div>
-  )
+  ({ className, variant, tone, icon, title, action, children, ...props }, ref) => {
+    const resolvedVariant = variant ?? (tone === 'neutral' ? 'neutral' : tone);
+    return (
+      <div
+        ref={ref}
+        role="status"
+        className={cn(alertVariants({ variant: resolvedVariant, className }))}
+        {...props}
+      >
+        {icon ? (
+          <span className="mt-0.5 shrink-0" aria-hidden="true">
+            {icon}
+          </span>
+        ) : null}
+        <div className="min-w-0 flex-1">
+          {title ? <p className="font-semibold">{title}</p> : null}
+          {children ? <div className={title ? 'mt-1' : undefined}>{children}</div> : null}
+          {action ? <div className="mt-3">{action}</div> : null}
+        </div>
+      </div>
+    );
+  }
 );
 Alert.displayName = 'Alert';
 

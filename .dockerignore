@@ -1,0 +1,21 @@
+# .dockerignore
+# What never belongs inside the image: anything secret, anything generated,
+# and anything that would make the build depend on the machine it ran on.
+
+.git
+.github
+node_modules
+.next
+out
+build
+dist
+coverage
+test-results
+playwright-report
+.env
+.env.*
+!.env.example
+docs
+tests
+*.log
+.DS_Store

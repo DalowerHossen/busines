@@ -14,6 +14,17 @@ const badgeVariants = cva(
         warning: 'border-warning/25 bg-warning-subtle text-warning-foreground',
         danger: 'border-destructive/20 bg-destructive-subtle text-destructive-foreground',
         info: 'border-info/20 bg-info-subtle text-info-foreground',
+        outline: 'border-border bg-transparent text-foreground',
+      },
+      tone: {
+        neutral: 'border-border bg-surface-muted text-muted-foreground',
+        brand:
+          'border-brand-200 bg-brand-50 text-brand-700 dark:border-brand-700 dark:bg-brand-950 dark:text-brand-300',
+        success: 'border-success/20 bg-success-subtle text-success-foreground',
+        warning: 'border-warning/25 bg-warning-subtle text-warning-foreground',
+        danger: 'border-destructive/20 bg-destructive-subtle text-destructive-foreground',
+        info: 'border-info/20 bg-info-subtle text-info-foreground',
+        outline: 'border-border bg-transparent text-foreground',
       },
     },
     defaultVariants: { variant: 'neutral' },
@@ -25,8 +36,12 @@ export interface BadgeProps
     VariantProps<typeof badgeVariants> {}
 
 export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
-  ({ className, variant, ...props }, ref) => (
-    <span ref={ref} className={cn(badgeVariants({ variant, className }))} {...props} />
+  ({ className, variant, tone, ...props }, ref) => (
+    <span
+      ref={ref}
+      className={cn(badgeVariants({ variant: variant ?? tone, className }))}
+      {...props}
+    />
   )
 );
 Badge.displayName = 'Badge';

@@ -8,6 +8,7 @@ export interface SwitchProps
   readonly checked?: boolean;
   readonly defaultChecked?: boolean;
   readonly onCheckedChange?: (checked: boolean) => void;
+  readonly label?: string;
 }
 
 export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
@@ -17,6 +18,7 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
       checked,
       defaultChecked = false,
       onCheckedChange,
+      label,
       onClick,
       type = 'button',
       ...props
@@ -32,6 +34,7 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
         type={type}
         role="switch"
         aria-checked={resolvedChecked}
+        aria-label={label}
         className={cn(
           'relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent bg-muted transition-colors duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
           resolvedChecked && 'bg-primary',

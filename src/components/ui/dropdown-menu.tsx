@@ -9,6 +9,7 @@ import {
   useState,
   createContext,
   type ButtonHTMLAttributes,
+  type ComponentType,
   type HTMLAttributes,
   type ReactNode,
 } from 'react';
@@ -27,15 +28,82 @@ function useDropdown(): DropdownContextValue {
   return context;
 }
 
+export interface DropdownItem {
+  readonly key: string;
+  readonly label: string;
+  readonly icon?: ComponentType<{ className?: string }>;
+  readonly onSelect: () => void;
+  readonly isDisabled?: boolean;
+  readonly isDestructive?: boolean;
+}
+
+export interface DropdownMenuProps {
+  readonly children?: ReactNode;
+  readonly defaultOpen?: boolean;
+  readonly align?: 'start' | 'end';
+  readonly triggerLabel?: string;
+  readonly items?: readonly DropdownItem[];
+  readonly trigger?: ReactNode;
+}
+
 export function DropdownMenu({
   children,
   defaultOpen = false,
-}: {
-  readonly children: ReactNode;
-  readonly defaultOpen?: boolean;
-}): ReactNode {
+  align = 'end',
+  triggerLabel,
+  items,
+  trigger,
+}: DropdownMenuProps): ReactNode {
   const [open, setOpen] = useState(defaultOpen);
   const menuId = useId();
+  if (items && trigger) {
+    return (
+      <div className="relative inline-block">
+        <button
+          type="button"
+          aria-label={triggerLabel}
+          aria-expanded={open}
+          aria-haspopup="menu"
+          onClick={() => setOpen((value) => !value)}
+        >
+          {trigger}
+        </button>
+        {open ? (
+          <div
+            id={menuId}
+            role="menu"
+            className={cn(
+              'absolute z-dropdown mt-2 min-w-48 rounded-lg border border-border bg-popover p-1.5 text-popover-foreground shadow-lg',
+              align === 'end' ? 'right-0' : 'left-0'
+            )}
+          >
+            {items.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.key}
+                  type="button"
+                  role="menuitem"
+                  disabled={item.isDisabled}
+                  className={cn(
+                    'flex min-h-10 w-full items-center gap-2 rounded-md px-3 text-left text-sm hover:bg-surface-muted disabled:opacity-50',
+                    item.isDestructive && 'text-destructive'
+                  )}
+                  onClick={() => {
+                    item.onSelect();
+                    setOpen(false);
+                  }}
+                >
+                  {Icon ? <Icon className="h-4 w-4" /> : null}
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
+      </div>
+    );
+  }
   return (
     <DropdownContext.Provider value={{ open, setOpen, menuId }}>
       {children}

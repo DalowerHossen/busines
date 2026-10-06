@@ -146,7 +146,7 @@ class SmtpConnection {
 
   async write(value: string): Promise<void> {
     await new Promise<void>((resolve, reject) => {
-      const written = this.socket.write(value, 'utf8', (error?: Error) => {
+      const written = this.socket.write(value, 'utf8', (error?: Error | null) => {
         if (error) reject(error);
         else resolve();
       });

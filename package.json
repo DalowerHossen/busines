@@ -80,7 +80,7 @@
     "@commitlint/cli": "19.5.0",
     "@commitlint/config-conventional": "19.5.0",
     "@tailwindcss/postcss": "^4.3.3",
-    "@types/node": "20.17.6",
+    "@types/node": "22.20.5",
     "@types/react": "18.3.12",
     "@types/react-dom": "18.3.1",
     "@types/sanitize-html": "^2.16.2",
@@ -96,7 +96,8 @@
     "prettier": "3.6.2",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.23.15",
-    "typescript": "5.6.3"
+    "typescript": "5.6.3",
+    "vitest": "5.0.3"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx,mjs,cjs}": [
@@ -108,9 +109,9 @@
     ]
   },
   "overrides": {
-    "postcss": "$postcss",
     "uuid": "11.1.1",
     "postcss-selector-parser": "7.1.6",
-    "glob": "10.5.0"
+    "glob": "10.5.0",
+    "postcss": "8.5.29"
   }
 }

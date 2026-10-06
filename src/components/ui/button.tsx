@@ -12,9 +12,11 @@ const buttonVariants = cva(
         secondary:
           'border border-border bg-surface text-foreground shadow-xs hover:border-brand-300 hover:bg-surface-raised',
         quiet: 'text-muted-foreground hover:bg-surface-muted hover:text-foreground',
+        ghost: 'text-muted-foreground hover:bg-surface-muted hover:text-foreground',
         outline:
           'border border-brand-200 bg-transparent text-brand-700 hover:border-brand-400 hover:bg-brand-50 dark:border-brand-700 dark:text-brand-300 dark:hover:bg-brand-950',
         danger: 'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90',
+        destructive: 'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90',
         success: 'bg-success text-success-foreground shadow-sm hover:bg-success/90',
         link: 'min-h-0 rounded-sm p-0 text-brand-700 underline-offset-4 hover:text-brand-800 hover:underline dark:text-brand-300',
       },
@@ -24,11 +26,9 @@ const buttonVariants = cva(
         lg: 'h-12 px-5 text-base',
         icon: 'h-11 w-11 shrink-0 p-0',
       },
+      fullWidth: { true: 'w-full', false: '' },
     },
-    defaultVariants: {
-      variant: 'primary',
-      size: 'md',
-    },
+    defaultVariants: { variant: 'primary', size: 'md', fullWidth: false },
   }
 );
 
@@ -36,9 +36,13 @@ export interface ButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   readonly loading?: boolean;
+  readonly isLoading?: boolean;
   readonly loadingLabel?: string;
   readonly leftIcon?: ReactNode;
   readonly rightIcon?: ReactNode;
+  readonly leadingIcon?: ReactNode;
+  readonly trailingIcon?: ReactNode;
+  readonly fullWidth?: boolean;
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -47,44 +51,50 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       className,
       variant,
       size,
+      fullWidth,
       loading = false,
+      isLoading = false,
       loadingLabel = 'Loading',
       leftIcon,
       rightIcon,
+      leadingIcon,
+      trailingIcon,
       children,
       disabled,
       type = 'button',
       ...props
     },
     ref
-  ) => (
-    <button
-      ref={ref}
-      type={type}
-      className={cn(buttonVariants({ variant, size, className }))}
-      disabled={disabled || loading}
-      aria-busy={loading || undefined}
-      {...props}
-    >
-      {loading ? (
-        <>
-          <span
-            aria-hidden="true"
-            className="h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent"
-          />
-          <span>{loadingLabel}</span>
-        </>
-      ) : (
-        <>
-          {leftIcon}
-          {children}
-          {rightIcon}
-        </>
-      )}
-    </button>
-  )
+  ) => {
+    const busy = loading || isLoading;
+    return (
+      <button
+        ref={ref}
+        type={type}
+        className={cn(buttonVariants({ variant, size, fullWidth, className }))}
+        disabled={disabled || busy}
+        aria-busy={busy || undefined}
+        {...props}
+      >
+        {busy ? (
+          <>
+            <span
+              aria-hidden="true"
+              className="h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent"
+            />
+            <span>{loadingLabel}</span>
+          </>
+        ) : (
+          <>
+            {leftIcon ?? leadingIcon}
+            {children}
+            {rightIcon ?? trailingIcon}
+          </>
+        )}
+      </button>
+    );
+  }
 );
-
 Button.displayName = 'Button';
 
 export function IconButton({

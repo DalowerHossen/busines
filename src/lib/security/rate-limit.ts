@@ -101,3 +101,52 @@ function normalizeIdentifier(value: string | undefined): string {
 function normalizeUserAgent(value: string | undefined): string {
   return normalizeIdentifier(value).replace(/\s+/gu, ' ').slice(0, 200);
 }
+
+export function rateLimitHeaders(decision: LegacyRateLimitDecision): Record<string, string> {
+  return {
+    'X-RateLimit-Limit': String(decision.limit),
+    'X-RateLimit-Remaining': String(decision.remaining),
+    'X-RateLimit-Reset': decision.resetAt,
+  };
+}
+
+export interface LegacyRateLimitDecision {
+  readonly isAllowed: boolean;
+  readonly allowed: boolean;
+  readonly limit: number;
+  readonly remaining: number;
+  readonly retryAfterSeconds: number;
+  readonly resetAt: string;
+}
+
+export function anonymousBucketKey(kind: string, identifier: string | null | undefined): string {
+  return `anonymous:${kind}:${identifier ?? 'unknown'}`;
+}
+
+export function accountBucketKey(kind: string, identifier: string | null | undefined): string {
+  return `account:${kind}:${identifier ?? 'unknown'}`;
+}
+
+export async function consumeRateLimit(input: {
+  readonly kind: string;
+  readonly key: string;
+  readonly limit: number;
+  readonly windowSeconds: number;
+}): Promise<LegacyRateLimitDecision> {
+  const { createServerSupabaseClient } = await import('@/lib/supabase/server');
+  const result = await createSupabaseRateLimitStore(createServerSupabaseClient()).consume({
+    bucketKey: `${input.kind}:${input.key}`,
+    limit: input.limit,
+    windowSeconds: input.windowSeconds,
+  });
+  const resetAt = result.resetAt;
+  const retryAfterSeconds = Math.max(0, Math.ceil((Date.parse(resetAt) - Date.now()) / 1000));
+  return {
+    isAllowed: result.allowed,
+    allowed: result.allowed,
+    limit: input.limit,
+    remaining: result.remaining,
+    retryAfterSeconds,
+    resetAt,
+  };
+}
