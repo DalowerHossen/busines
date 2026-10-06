@@ -102,6 +102,7 @@ const nextConfig = {
       bodySizeLimit: '2mb',
     },
     optimizePackageImports: ['lucide-react', 'date-fns'],
+    memoryBasedWorkersCount: true,
   },
 
   async headers() {
