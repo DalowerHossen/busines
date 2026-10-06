@@ -13,7 +13,7 @@ import { Alert } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 import { ROUTES } from '@/config/app';
-import { absoluteUrl } from '@/env/client';
+import { absoluteUrl } from '@/lib/env/env.client';
 import { loadStorefrontBoard } from '@/features/storefronts/queries/list-connections';
 import { loadStorefrontOrders } from '@/features/storefronts/queries/list-orders';
 import { loadCompany } from '@/lib/auth/company-context';

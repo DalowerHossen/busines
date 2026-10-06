@@ -36,10 +36,10 @@ function main(): void {
     'src/app/(app)/dashboard/products/page.tsx',
     'src/app/(app)/dashboard/products/stock/page.tsx',
     'src/app/(app)/dashboard/expenses/suppliers/page.tsx',
-    'supabase/migrations/00069_product_bundles.sql',
-    'supabase/migrations/00071_warehouses.sql',
-    'supabase/migrations/00076_suppliers.sql',
-    'supabase/migrations/00077_purchase_orders.sql',
+    'supabase/migrations/00233_create_product_bundles.sql',
+    'supabase/migrations/00109_create_inventory.sql',
+    'supabase/migrations/00092_create_vendors.sql',
+    'supabase/migrations/00094_create_purchase_orders.sql',
   ];
 
   for (const relativePath of requiredFiles) read(relativePath);

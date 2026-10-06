@@ -13,7 +13,7 @@ import { startCheckoutSchema } from '@/features/checkout/validation/checkout';
 import { createAction } from '@/lib/actions/create-action';
 import { decryptCredentialBundle } from '@/lib/crypto/encryption';
 import { sha256Hex } from '@/lib/crypto/hashing';
-import { absoluteUrl } from '@/env/client';
+import { absoluteUrl } from '@/lib/env/env.client';
 import { AppError } from '@/lib/errors';
 import { logger } from '@/lib/logger';
 import { toMinorUnits } from '@/lib/money';

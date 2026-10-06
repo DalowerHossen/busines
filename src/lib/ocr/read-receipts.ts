@@ -5,7 +5,7 @@
 
 import 'server-only';
 
-import { serverEnv } from '@/env/server';
+import { serverEnv } from '@/lib/env/env.server';
 import { logger } from '@/lib/logger';
 import { resolveReceiptReader } from '@/lib/ocr/registry';
 import type { ReadOutcome } from '@/lib/ocr/types';

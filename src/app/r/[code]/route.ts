@@ -9,7 +9,7 @@ import { randomUUID } from 'node:crypto';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-import { clientEnv } from '@/env/client';
+import { clientEnv } from '@/lib/env/env.client';
 import { VISITOR_COOKIE, VISITOR_COOKIE_MAX_AGE } from '@/features/affiliates/services/attribution';
 import { logger } from '@/lib/logger';
 import { consumeRateLimit } from '@/lib/security/rate-limit';

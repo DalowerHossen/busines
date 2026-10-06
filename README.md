@@ -97,18 +97,20 @@ Resolution order: **database value, then environment variable, then built in def
 
 ## Scripts
 
-| Command                      | Purpose                                             |
-| ---------------------------- | --------------------------------------------------- |
-| `npm run dev`                | Start the development server                        |
-| `npm run build`              | Create a production build                           |
-| `npm run start`              | Serve the production build                          |
-| `npm run lint`               | Run ESLint with zero tolerance for warnings         |
-| `npm run typecheck`          | Run the TypeScript compiler without emitting output |
-| `npm run format`             | Format the codebase with Prettier                   |
-| `npm run format:check`       | Verify formatting without writing changes           |
-| `npm run check:language`     | Fail if any non English text exists in the codebase |
-| `npm run check:placeholders` | Fail if any unfinished work marker exists           |
-| `npm run verify`             | Run every quality gate in sequence                  |
+| Command                      | Purpose                                                                                          |
+| ---------------------------- | ------------------------------------------------------------------------------------------------ |
+| `npm run dev`                | Start the development server                                                                     |
+| `npm run build`              | Create a production build                                                                        |
+| `npm run start`              | Serve the production build                                                                       |
+| `npm run lint`               | Run ESLint with zero tolerance for warnings                                                      |
+| `npm run typecheck`          | Run the TypeScript compiler without emitting output                                              |
+| `npm run format`             | Format the codebase with Prettier                                                                |
+| `npm run format:check`       | Verify formatting without writing changes                                                        |
+| `npm run check:language`     | Fail if any non English text exists in the codebase                                              |
+| `npm run check:placeholders` | Fail if any unfinished work marker exists                                                        |
+| `npm run check:schema`       | Fail on duplicate migrations, tables without RLS or queries against a table no migration creates |
+| `npm run test`               | Run the Vitest unit suite                                                                        |
+| `npm run verify`             | Run every quality gate in sequence                                                               |
 
 ---
 
@@ -139,6 +141,23 @@ new working session before changing code.
 
 The same codebase deploys to Netlify (`netlify.toml`), Vercel (`vercel.json`) and Docker.
 Build command: `npm run build`. Output directory: `.next`.
+
+The build only needs the public `NEXT_PUBLIC_*` values; server secrets are
+validated on first use at runtime, not while building, so no production
+credential has to be present on the build machine.
+
+### Scheduled work
+
+Four endpoints under `/api/cron/` do the recurring work: `dispatch-messages`,
+`deliver-webhooks`, `read-receipts` and `release-funds`. Each one requires
+the `CRON_SECRET` bearer token, so they can also be triggered by hand during
+an incident. Every host needs its own scheduler:
+
+| Host    | Mechanism                                                       |
+| ------- | --------------------------------------------------------------- |
+| Netlify | Scheduled functions in `netlify/functions/scheduled-*.mts`      |
+| Vercel  | The `crons` array in `vercel.json`                              |
+| Docker  | A system cron or timer that calls the endpoints with the secret |
 
 ---
 

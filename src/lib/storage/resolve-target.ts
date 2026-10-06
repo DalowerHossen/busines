@@ -8,7 +8,7 @@
 
 import 'server-only';
 
-import { serverEnv } from '@/env/server';
+import { serverEnv } from '@/lib/env/env.server';
 import { decryptCredentialBundle } from '@/lib/crypto/encryption';
 import { logger } from '@/lib/logger';
 import { cloudDriveAdapter } from '@/lib/storage/adapters/cloud-drive';

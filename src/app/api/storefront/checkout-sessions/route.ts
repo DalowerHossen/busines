@@ -10,7 +10,7 @@
 import type { NextRequest, NextResponse } from 'next/server';
 
 import { checkoutSessionSchema } from '@/features/storefronts/validation/storefronts';
-import { absoluteUrl } from '@/env/client';
+import { absoluteUrl } from '@/lib/env/env.client';
 import { randomSecret, sha256Hex } from '@/lib/crypto/hashing';
 import {
   createdResponse,

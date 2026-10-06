@@ -157,12 +157,16 @@ export default function DevelopersPage() {
           />
 
           <div className="mt-8 flex flex-wrap gap-3">
+            {/* These point at API route handlers that return JSON, not pages,
+                so an anchor is deliberate and next/link must not prefetch them. */}
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a
               href="/api/v1/openapi"
               className="inline-flex min-h-touch items-center rounded-md bg-brand-600 px-5 text-sm font-medium text-white shadow-xs"
             >
               Read the interface description
             </a>
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a
               href="/api/v1/ping"
               className="inline-flex min-h-touch items-center rounded-md border border-border bg-surface px-5 text-sm font-medium text-foreground"

@@ -11,3 +11,9 @@ import { runScheduledTask } from './shared-runner.mjs';
 export default async function handler(): Promise<Response> {
   return runScheduledTask('deliver-webhooks');
 }
+
+// Netlify only treats a function as scheduled when it exports this config,
+// so without it the handler above would never be invoked automatically.
+export const config = {
+  schedule: '*/5 * * * *',
+};

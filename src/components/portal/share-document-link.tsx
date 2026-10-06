@@ -10,7 +10,7 @@ import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { notify } from '@/components/ui/toaster';
-import { absoluteUrl } from '@/env/client';
+import { absoluteUrl } from '@/lib/env/env.client';
 import { createDocumentLink } from '@/features/portal/actions/create-document-link';
 import { formatDate } from '@/lib/dates';
 

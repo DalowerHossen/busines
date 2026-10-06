@@ -9,7 +9,7 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-import { serverEnv } from '@/env/server';
+import { serverEnv } from '@/lib/env/env.server';
 import { decryptSecret } from '@/lib/crypto/encryption';
 import { signaturesMatch } from '@/lib/crypto/hashing';
 import { errorResponse, HTTP_STATUS } from '@/lib/http/responses';

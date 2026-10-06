@@ -83,3 +83,24 @@ function loadClientEnv(): Readonly<ClientEnv> {
 }
 
 export const clientEnv: Readonly<ClientEnv> = loadClientEnv();
+
+/**
+ * Returns the base URL that client facing short links are built from.
+ *
+ * @returns An absolute URL without a trailing slash.
+ */
+export function shortLinkBaseUrl(): string {
+  const configured = clientEnv.NEXT_PUBLIC_SHORT_LINK_URL;
+  return configured.replace(/\/+$/u, '');
+}
+
+/**
+ * Builds an absolute URL inside the application.
+ *
+ * @param path Path beginning with a slash.
+ * @returns An absolute URL.
+ */
+export function absoluteUrl(path: string): string {
+  const base = clientEnv.NEXT_PUBLIC_APP_URL.replace(/\/+$/u, '');
+  return `${base}${path.startsWith('/') ? path : `/${path}`}`;
+}

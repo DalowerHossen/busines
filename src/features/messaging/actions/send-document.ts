@@ -21,7 +21,7 @@ import { formatMoney } from '@/lib/format';
 import { logger } from '@/lib/logger';
 import { asRow, readAmount, readString } from '@/lib/records';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { clientEnv } from '@/env/client';
+import { clientEnv } from '@/lib/env/env.client';
 
 export interface SendDocumentResult {
   /** Identifier of the queued message. */

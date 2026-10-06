@@ -20,7 +20,7 @@ permissions:
 
 jobs:
   verify:
-    name: Verify (language, placeholders, types, lint, format)
+    name: Verify (language, placeholders, schema, types, lint, format)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -40,6 +40,9 @@ jobs:
 
       - name: No placeholder content check
         run: npm run check:placeholders
+
+      - name: Migration and schema integrity check
+        run: npm run check:schema
 
       - name: TypeScript type check
         run: npm run typecheck
@@ -93,6 +96,8 @@ jobs:
           LINK_SIGNING_SECRET: '01234567890123456789012345678901'
           CSRF_SECRET: '01234567890123456789012345678901'
           CRON_SECRET: '01234567890123456789012345678901'
+          # The documented default storage provider must survive a build.
+          STORAGE_PROVIDER: google_drive
 
   test:
     name: Unit and integration tests
@@ -112,4 +117,4 @@ jobs:
         run: npm ci --no-audit --no-fund
 
       - name: Run test suite
-        run: npm run test --if-present
+        run: npm run test

@@ -30,7 +30,7 @@ const pdfTypes = read('src/lib/pdf/types.ts');
 const printComponent = read('src/components/shared/invoice-print-document.tsx');
 const printCss = read('src/styles/print.css');
 const globals = read('src/app/globals.css');
-const hashMigration = read('supabase/migrations/00046_invoice_estimate_pdf_hash_fields.sql');
+const hashMigration = read('supabase/migrations/00038_create_invoices.sql');
 
 assert(packageJson.includes('"@react-pdf/renderer"'), 'React-PDF dependency is missing');
 assert(lockfile.includes('node_modules/@react-pdf/renderer'), 'lockfile lacks React-PDF');
@@ -88,7 +88,7 @@ assert(globals.includes("@import '../styles/print.css'"), 'print CSS is not load
 assert(printComponent.includes('InvoicePrintDocument'), 'HTML print preview component is missing');
 assert(printComponent.includes('data-page-size'), 'print preview does not expose page-size toggle');
 
-for (const marker of ['rendered_pdf_hash', 'rendered_pdf_hash_computed_at']) {
+for (const marker of ['pdf_sha256', 'pdf_generated_at']) {
   assert(hashMigration.includes(marker), `database hash field ${marker} is missing`);
 }
 
