@@ -25,6 +25,7 @@ function main(): void {
     'src/features/products/queries/list-categories.ts',
     'src/features/products/queries/catalogue-references.ts',
     'src/features/products/actions/create-product.ts',
+    'src/features/products/actions/manage-catalogue.ts',
     'src/features/products/actions/update-product.ts',
     'src/features/products/actions/delete-product.ts',
     'src/features/inventory/types.ts',
@@ -57,6 +58,12 @@ function main(): void {
   assert.match(productQuery, /company_id/u);
   assert.match(productQuery, /escapeSearchTerm/u);
   assert.match(productQuery, /safeSortColumn/u);
+
+  const catalogueActions = read('src/features/products/actions/manage-catalogue.ts');
+  assert.match(catalogueActions, /assertCompanyProducts/u);
+  assert.match(catalogueActions, /company_id/u);
+  assert.match(catalogueActions, /product_bundle_items/u);
+  assert.match(catalogueActions, /price_list_items/u);
 
   const stockAction = read('src/features/inventory/actions/manage-stock.ts');
   assert.match(stockAction, /requirePermission/u);
