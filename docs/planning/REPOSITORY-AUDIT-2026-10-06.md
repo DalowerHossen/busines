@@ -126,3 +126,17 @@ The completed rows are not equivalent to full product completion: many are inten
 3. **Phases 71–75:** unit/integration/E2E tests, asset/mobile/accessibility QA, documentation refresh, clean production build/deployment verification, dead-link audit, and final release gate.
 
 Cross-cutting acceptance still includes configurable/versioned tax and fee rules, MoR responsibility, provider-official request contracts, idempotent payment retry, no raw card storage, company-scoped authorization, English-only UI/code/comments/errors/seed data, responsive accessibility, and keeping QR Business Card out of scope.
+
+## Recheck on 2026-10-07 — starting state
+
+The requested first-pass diagnostics found 237 migration files with 237 unique
+sequence prefixes, and `scripts/check-schema-integrity.mjs` is present. The
+specific expected scripts `check-navigation.mjs`, `check-duplicate-exports.mjs`,
+`check-dead-code.mjs`, `check-file-headers.mjs`, and `check-env-contract.mjs` are
+absent; related scripts currently use different names. `src/lib/validators/`
+still contains 12 files, and `(app)/layout.tsx` still has one `Alex Morgan`
+occurrence. The worktree was clean on the fixed session branch
+`arena/d89bb1cd-busines`; prior local commits `e045f81` and `348ede8` are not in
+the recent history. Therefore, the surviving 237-migration repair is present,
+but it would be inaccurate to say the entire prior repair set is intact. This
+baseline has been checkpointed before beginning the seed/database work.

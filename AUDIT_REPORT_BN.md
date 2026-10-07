@@ -224,3 +224,24 @@ cp .env.example .env.local && npm run build   # প্রোডাকশন ব�
 ```
 
 সব ধাপ সবুজ অবস্থায় এই কাজটি শেষ করা হয়েছে।
+
+## ৫. ২০২৬-১০-০৭ পুনঃযাচাই — কাজ শুরুর অবস্থা
+
+প্রথমে নির্ধারিত কমান্ডগুলো চালানো হয়েছে। ফল:
+
+- `supabase/migrations/`-এ **২৩৭টি** SQL মাইগ্রেশন; ২৩৭টি নম্বরই অনন্য।
+- `scripts/check-schema-integrity.mjs` আছে, কিন্তু নির্দিষ্ট তালিকার
+  `check-navigation.mjs`, `check-duplicate-exports.mjs`, `check-dead-code.mjs`,
+  `check-file-headers.mjs`, `check-env-contract.mjs` নেই। বর্তমানে কাছাকাছি নামে
+  `check-routes.mjs`, `check-database-contract.mjs` ও অন্য স্ক্রিপ্ট আছে।
+- `src/lib/validators/`-এ ১২টি ফাইল আছে; তাই আগের বর্ণিত cleanup সম্পূর্ণ
+  অক্ষত নয়।
+- `(app)/layout.tsx`-এ `Alex Morgan`-এর ১টি occurrence আছে; তাই ওই নির্দিষ্ট
+  hardcoded পরিচয়ও পুরোপুরি সরেনি।
+- শুরুতে Git working tree পরিষ্কার ছিল; বর্তমান সেশন-branch
+  `arena/d89bb1cd-busines`। পুরোনো লোকাল commit `e045f81`/`348ede8` এই
+  branch-এর সাম্প্রতিক history-তে নেই।
+
+অতএব মাইগ্রেশন মেরামত অক্ষত, কিন্তু পুরো আগের মেরামত অক্ষত—এমন দাবি করা
+যাবে না। কাজের আগে এই নিরীক্ষা-অবস্থা checkpoint হিসেবে commit করা হয়েছে;
+এরপর seed ও database verification-এ এগোনো হচ্ছে।
